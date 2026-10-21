@@ -48,6 +48,7 @@
   --focus:#1d6fd6;
   --scrim:rgba(40,25,10,.45);
   --card:#fffaf0;
+  --float-bg:rgba(251,246,234,.86);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -58,7 +59,7 @@
     --btn:#2c241c; --btn-edge:#4a3d2f;
     --sheet-bg:rgba(235,230,218,.16); --sheet-edge:rgba(255,255,255,.18); --sheet-sheen:rgba(255,255,255,.12);
     --ghost:rgba(255,240,220,.28); --ghost-filter:brightness(0) invert(1);
-    --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c;
+    --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c; --float-bg:rgba(44,36,28,.86);
   }
 }
 :root[data-theme="dark"]{
@@ -69,7 +70,7 @@
   --btn:#2c241c; --btn-edge:#4a3d2f;
   --sheet-bg:rgba(235,230,218,.16); --sheet-edge:rgba(255,255,255,.18); --sheet-sheen:rgba(255,255,255,.12);
   --ghost:rgba(255,240,220,.28); --ghost-filter:brightness(0) invert(1);
-  --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c;
+  --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c; --float-bg:rgba(44,36,28,.86);
 }
 
 *{box-sizing:border-box}
@@ -117,14 +118,13 @@ button{font:inherit;color:inherit}
 
 /* ----- main layout ----- */
 .main{flex:1;min-height:0;display:grid;gap:10px;
-  grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;
-  grid-template-areas:"stage" "tools" "sheet"}
+  grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;
+  grid-template-areas:"stage" "sheet"}
 .stage-wrap{grid-area:stage;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
-.tools{grid-area:tools;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;justify-content:center;min-height:44px;position:relative;z-index:1}
 .sheet{grid-area:sheet;position:relative;z-index:1}
 @media (min-width:900px) and (orientation:landscape), (orientation:landscape) and (max-height:560px){
-  .main{grid-template-columns:minmax(0,1fr) clamp(200px,24vw,330px);grid-template-rows:minmax(0,1fr) auto;
-    grid-template-areas:"stage sheet" "tools sheet"}
+  .main{grid-template-columns:minmax(0,1fr) clamp(200px,24vw,330px);grid-template-rows:minmax(0,1fr);
+    grid-template-areas:"stage sheet"}
 }
 
 /* ----- the booklet page ----- */
@@ -156,6 +156,7 @@ button{font:inherit;color:inherit}
 .zbtn:hover{opacity:1}
 .zbtn:active{transform:translateY(1px)}
 .zbtn[disabled]{opacity:.35;cursor:default}
+.zbtn[hidden]{display:none}
 @media (orientation:landscape) and (max-height:560px){
   .zoombar{flex-direction:row;top:6px;right:6px;gap:5px}
   .zbtn{width:34px;height:34px;font-size:19px;border-radius:10px}
@@ -216,16 +217,52 @@ button{font:inherit;color:inherit}
 .rubber.active{animation:wobble .18s linear infinite}
 @keyframes wobble{0%,100%{rotate:-8deg}50%{rotate:8deg}}
 
-/* ----- tool bar ----- */
-.hint{margin:0;font-weight:800;font-size:16px;color:var(--ink);text-align:center;flex:1 1 260px;min-width:0}
+/* ----- floating tools: laid over the scene so the scene never changes size with the mode ----- */
+.tools{position:absolute;z-index:8;pointer-events:none;
+  top:calc(var(--pp) + var(--bind));left:var(--pp);right:var(--pp);bottom:var(--pp)}
+.hint{position:absolute;left:8px;top:8px;max-width:min(460px,calc(100% - 66px));display:flex;align-items:flex-start;gap:2px;
+  font-weight:800;font-size:14px;line-height:1.3;color:var(--ink);text-align:left;
+  padding:6px 2px 6px 11px;border-radius:12px;background:var(--float-bg);box-shadow:0 2px 8px rgba(0,0,0,.2);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.hint p{margin:0;padding-top:1px;min-width:0}
 .hint b{color:var(--ink)}
-.actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+.hint-x{pointer-events:auto;flex:none;width:32px;height:32px;margin:-6px 0 -6px 0;padding:0;border:0;border-radius:10px;
+  background:transparent;color:var(--ink-soft);font-size:15px;font-weight:800;line-height:1;cursor:pointer;touch-action:manipulation}
+.hint-x:hover{color:var(--ink);background:rgba(120,90,50,.12)}
+.hint.empty,.hint.off{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap;box-shadow:none;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.hint.empty .hint-x,.hint.off .hint-x{display:none}
+.actions{position:absolute;left:0;right:0;margin:0 auto;bottom:14px;pointer-events:auto;
+  width:-webkit-fit-content;width:fit-content;max-width:calc(100% - 16px);
+  display:flex;flex-wrap:nowrap;gap:6px;align-items:center;
+  padding:6px 7px 8px;border-radius:16px;background:var(--float-bg);box-shadow:0 3px 12px rgba(0,0,0,.22);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tools .actions{transition:opacity .15s ease}
+.tools.busy .actions{opacity:.3;pointer-events:none}
 .actions[hidden]{display:none}
-.meter{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.actions .btn{flex:none}
+.meter{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;padding:0 4px;flex:none}
 .meter-bar{width:90px;height:10px;border-radius:99px;background:var(--btn-edge);overflow:hidden}
 .meter-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f6b13d);border-radius:inherit}
-@media (max-width:520px){.long{display:none}.hint{font-size:14px}}
-@media (max-width:430px){.mid{display:none}}
+/* labels give way to icons when the scene itself is narrow (classes set from fit()) */
+.tools.narrow .long,.tools.narrow .lbl{display:none}
+.tools.tiny .lbl2{display:none}
+.tools.tiny .actions{gap:4px;padding:5px 5px 7px}
+.tools.tiny .actions .btn{padding:6px 8px}
+.tools.tiny .meter-bar{width:44px}
+@media (max-width:600px){
+  .hint{font-size:13px;padding:5px 1px 5px 9px;max-width:calc(100% - 64px)}
+  .actions{gap:4px;bottom:10px;padding:5px 5px 7px}
+  .actions .btn{padding:6px 9px;font-size:14px}
+  .actions .btn.icon{min-width:42px;font-size:20px}
+  .meter{font-size:13px;gap:5px}
+  .meter-bar{width:56px}
+}
+@media (orientation:landscape) and (max-height:560px){
+  .hint{font-size:13px;padding:4px 1px 4px 9px;left:6px;top:6px;max-width:calc(100% - 172px)}
+  .actions{bottom:11px;padding:5px 6px 7px;gap:5px}
+  .actions .btn{padding:6px 10px;font-size:14px}
+}
 
 /* ----- the transfer sheet -----
    A bright sticker sheet in both themes: opaque cream paper, white cards, full-colour stickers. */
@@ -299,28 +336,9 @@ button{font:inherit;color:inherit}
   .slot img{max-width:calc(56% + var(--s,1) * 30%);max-height:calc(50% + var(--s,1) * 26%)}
 }
 
-/* ----- stacked layout (phone portrait, narrow windows): big scene, tool row, carousel at the bottom ----- */
+/* ----- stacked layout (phone portrait, narrow windows): big scene (tools float over it), carousel at the bottom ----- */
 @media (orientation:portrait), (orientation:landscape) and (max-width:899px) and (min-height:561px){
-  .main{gap:8px;grid-template-rows:minmax(0,1fr) 48px auto}
-  .tools{flex-wrap:nowrap;min-height:0;height:48px;z-index:3;gap:6px}
-  .tools .hint{position:absolute;left:50%;bottom:calc(100% + 20px);transform:translateX(-50%);
-    width:max-content;max-width:calc(100% - 24px);flex:none;pointer-events:none;
-    font-size:13px;line-height:1.25;padding:6px 11px;border-radius:12px;
-    background:rgba(251,246,234,.93);color:#3b2a1c;box-shadow:0 2px 8px rgba(0,0,0,.22)}
-  .tools .hint b{color:#3b2a1c}
-  .tools:not(:has(> .actions:not([hidden]))) .hint{position:static;transform:none;width:auto;max-width:none;flex:1 1 auto;
-    background:none;box-shadow:none;padding:0 4px;color:var(--ink)}
-  .tools:not(:has(> .actions:not([hidden]))) .hint b{color:var(--ink)}
-  .actions{flex:1 1 auto;min-width:0;flex-wrap:nowrap;justify-content:flex-start;gap:5px;
-    overflow-x:auto;overflow-y:hidden;padding:0 2px 4px;scrollbar-width:none;touch-action:pan-x}
-  .actions::-webkit-scrollbar{display:none}
-  .actions > :first-child{margin-left:auto}
-  .actions > :last-child{margin-right:auto}
-  .tools .btn{min-height:42px;padding:6px 8px;font-size:13.5px;gap:0}
-  .actions{gap:4px}
-  .tools .btn.icon{min-width:42px;font-size:20px}
-  .meter{font-size:13px;gap:5px}
-  .meter-bar{width:56px}
+  .main{gap:8px;grid-template-rows:minmax(0,1fr) auto}
   .sheet{padding:5px 6px 4px;border-radius:14px}
   .sheet-label{font-size:13px;padding:0 4px 4px}
   #sheetLeft{font-size:11px;padding:2px 8px}
@@ -345,7 +363,6 @@ button{font:inherit;color:inherit}
   .main{gap:6px}
   .page{--pp:6px;--bind:12px}
   .binding{top:-8px;height:24px;background-size:22px 24px}
-  .hint{font-size:13px}
 }
 /* phone portrait: edge to edge, as little chrome as possible */
 @media (max-width:600px) and (orientation:portrait){
@@ -357,7 +374,6 @@ button{font:inherit;color:inherit}
   .page::after,.binding{display:none}
   .scene-box{border-radius:0;box-shadow:none}
   .scene-box canvas#scene{border-radius:0}
-  .tools{padding:0 4px}
   .sheet{border-radius:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -2px 10px rgba(40,25,10,.18);
     padding:4px 0 max(4px,env(safe-area-inset-bottom,0px))}
   .sheet-label{padding:0 10px 3px}
@@ -418,33 +434,37 @@ button{font:inherit;color:inherit}
             <button class="zbtn" id="btnZoomIn" type="button" aria-label="Zoomer" title="Zoomer">+</button>
             <button class="zbtn" id="btnZoomOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
             <button class="zbtn" id="btnZoomFit" type="button" aria-label="Vue par défaut" title="Vue par défaut"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+            <button class="zbtn" id="btnHelp" type="button" aria-label="Afficher l'aide" title="Afficher l'aide" hidden>?</button>
+          </div>
+        </div>
+        <!-- floats over the scene: the scene keeps the same size whatever the mode -->
+        <div class="tools" id="tools">
+          <div class="hint" id="hintBox">
+            <p id="hint" role="status" aria-live="polite"></p>
+            <button class="hint-x" id="btnHintClose" type="button" aria-label="Fermer l'aide" title="Fermer l'aide">✕</button>
+          </div>
+          <div class="actions" id="actsAdjust" hidden role="group" aria-label="Décalco à placer">
+            <button class="btn icon" id="btnSmaller" type="button" aria-label="Plus petite" title="Plus petite">−</button>
+            <button class="btn icon" id="btnBigger" type="button" aria-label="Plus grande" title="Plus grande">+</button>
+            <button class="btn" id="btnFlip" type="button" aria-label="Retourner" title="Retourner">↔<span class="lbl"> Retourner</span></button>
+            <button class="btn" id="btnCancel" type="button" aria-label="Ranger" title="Ranger">↩<span class="lbl2"> Ranger</span></button>
+            <button class="btn primary" id="btnRub" type="button">✋ Frotter</button>
+          </div>
+          <div class="actions" id="actsRub" hidden role="group" aria-label="Frottage">
+            <span class="meter" aria-hidden="true"><span class="meter-bar"><i id="meterFill"></i></span><span id="meterText">0 %</span></span>
+            <button class="btn" id="btnAdjust" type="button" aria-label="Bouger la décalco" title="Bouger / changer la taille">✥ Bouger</button>
+            <button class="btn primary" id="btnAuto" type="button" aria-label="Frotter pour moi">✨ Frotter<span class="long"> pour moi</span></button>
+          </div>
+          <div class="actions" id="actsSel" hidden role="group" aria-label="Décalco choisie">
+            <button class="btn primary" id="btnPeel" type="button">✋ Décoller</button>
+            <button class="btn" id="btnFront" type="button" aria-label="Passer devant" title="Passer devant">⬆<span class="lbl"> Devant</span></button>
+            <button class="btn" id="btnBack" type="button" aria-label="Passer derrière" title="Passer derrière">⬇<span class="lbl"> Derrière</span></button>
+            <button class="btn" id="btnUnplace" type="button" aria-label="Ranger" title="Ranger">↩<span class="lbl2"> Ranger</span></button>
+            <button class="btn icon" id="btnDeselect" type="button" aria-label="Fini, ne plus choisir cette décalco" title="Fini">✓</button>
           </div>
         </div>
       </div>
     </section>
-
-    <div class="tools" id="tools">
-      <p class="hint" id="hint" role="status" aria-live="polite"></p>
-      <div class="actions" id="actsAdjust" hidden>
-        <button class="btn icon" id="btnSmaller" type="button" aria-label="Plus petite">−</button>
-        <button class="btn icon" id="btnBigger" type="button" aria-label="Plus grande">+</button>
-        <button class="btn" id="btnFlip" type="button">↔ Retourner</button>
-        <button class="btn" id="btnCancel" type="button" aria-label="Remettre sur la planche" title="Remettre sur la planche">↩<span class="mid"> Remettre</span><span class="long"> sur la planche</span></button>
-        <button class="btn primary" id="btnRub" type="button">✋ Frotter</button>
-      </div>
-      <div class="actions" id="actsRub" hidden>
-        <span class="meter" aria-hidden="true"><span class="meter-bar"><i id="meterFill"></i></span><span id="meterText">0 %</span></span>
-        <button class="btn" id="btnAdjust" type="button">✥ Ajuster</button>
-        <button class="btn primary" id="btnAuto" type="button">✨ Frotter pour moi</button>
-      </div>
-      <div class="actions" id="actsSel" hidden role="group" aria-label="Décalco choisie">
-        <button class="btn primary" id="btnPeel" type="button">✋ Décoller</button>
-        <button class="btn" id="btnFront" type="button" aria-label="Passer devant">⬆ Devant</button>
-        <button class="btn" id="btnBack" type="button" aria-label="Passer derrière">⬇ Derrière</button>
-        <button class="btn" id="btnUnplace" type="button" aria-label="Remettre sur la planche">↩<span class="long"> Remettre sur la</span><span class="mid"> planche</span></button>
-        <button class="btn icon" id="btnDeselect" type="button" aria-label="Fini, ne plus choisir cette décalco">✓</button>
-      </div>
-    </div>
 
     <aside class="sheet" id="sheet" aria-label="La planche de décalcomanies">
       <div class="sheet-label"><span>Planche de décalcomanies</span><span id="sheetLeft"></span></div>
@@ -509,6 +529,7 @@ button{font:inherit;color:inherit}
     var stageWrap = $("stageWrap"), page = $("page"), sceneBox = $("sceneBox"), canvas = $("scene");
     var film = $("film"), art = $("art"), filmImg = $("filmImg"), ink = $("ink"), handle = $("handle"), rubber = $("rubber");
     var grid = $("sheetGrid"), counter = $("counter"), hint = $("hint"), sheetLeft = $("sheetLeft"), doneBadge = $("doneBadge");
+    var toolsEl = $("tools"), hintBox = $("hintBox"), btnHelp = $("btnHelp");
     var actsAdjust = $("actsAdjust"), actsRub = $("actsRub"), actsSel = $("actsSel"), meterFill = $("meterFill"), meterText = $("meterText");
 
     /* ---------------- state ---------------- */
@@ -827,6 +848,8 @@ button{font:inherit;color:inherit}
         w = Math.max(80, Math.floor(w)); h = Math.round(w / ar);
       }
       sceneBox.style.width = w + "px"; sceneBox.style.height = h + "px";
+      toolsEl.classList.toggle("narrow", w < 540);   // floating buttons: icons only on a narrow scene
+      toolsEl.classList.toggle("tiny", w < 350);
       if (w !== vw || h !== vh || nt !== tall || !viewInit) {
         // keep the same relative zoom and the same scene point in the middle (fresh start if the layout flipped)
         var keep = viewInit && nt === tall, rel = keep ? view.k / kDefault() : 1;
@@ -910,20 +933,46 @@ button{font:inherit;color:inherit}
       if (m !== "rub") rubber.classList.remove("on", "active");
       $("btnAuto").disabled = autoRunning;
       $("btnAdjust").disabled = autoRunning;
-      var msg;
+      var msg, note = false;   // note: a one-off message worth flashing even when the help is closed
+      if (sel) note = !!selNote;
       if (sel) msg = selNote || ("<b>" + byId.get(selected.id).name + "</b> : <b>Décolle</b>-la pour la bouger, ou passe-la devant / derrière.");
-      else if (m === "idle" && placements.length >= TOTAL) msg = "<b>Page terminée !</b> Touche une décalco pour la décoller ou la bouger.";
-      else if (m === "idle" && placements.length) msg = "Glisse une décalco de la planche jusqu'à la page. Touche une décalco posée pour la décoller.";
+      else if (m === "idle" && placements.length >= TOTAL) { msg = "<b>Page terminée !</b> Touche une décalco pour la choisir."; note = true; }
+      else if (m === "idle" && placements.length) msg = "Glisse une décalco de la planche jusqu'à la page. Touche une décalco posée pour la choisir.";
       else if (m === "idle") msg = "Glisse une décalco de la planche jusqu'à la page (ou touche-la).";
       else if (m === "drag") msg = "Lâche-la sur la page…";
       else if (m === "peeling") msg = "Hop… on la décolle tout doucement.";
-      else if (m === "adjust" && pending.peeled) msg = "Décollée ! Bouge-la, change sa taille, puis <b>Frotter</b> pour la recoller.";
+      else if (m === "adjust" && pending.peeled) { msg = "Décollée ! Bouge-la, change sa taille, puis <b>Frotter</b> pour la recoller."; note = true; }
       else if (m === "adjust") msg = "Place-la, change sa taille (pince ou rond orange), puis <b>Frotter</b>.";
       else if (m === "rub") msg = "<b>Frotte</b> d'avant en arrière dessus ! Tu pourras la décoller plus tard.";
-      else msg = "Et voilà, elle est posée !";
-      hint.innerHTML = msg;
+      else { msg = "Et voilà, elle est posée !"; note = true; }
+      setHint(msg, note);
       updateMeter();
     }
+    /* help bubble: closed for good with its ✕ (remembered), back with the "?" by the zoom buttons.
+       Once closed, only one-off notes flash for a moment; the text stays readable by screen readers. */
+    var HELP_KEY = "decalco-aide-fermee", helpOff = false, hintTimer = 0, lastMsg = null;
+    try { helpOff = window.localStorage.getItem(HELP_KEY) === "1"; } catch (e) { helpOff = false; }
+    function setHint(msg, note) {
+      var changed = msg !== lastMsg;
+      lastMsg = msg;
+      if (changed) hint.innerHTML = msg;
+      hintBox.classList.toggle("empty", !msg);
+      btnHelp.hidden = !helpOff;
+      if (!helpOff) { clearTimeout(hintTimer); hintBox.classList.remove("off"); return; }
+      if (!changed) return;
+      clearTimeout(hintTimer);
+      hintBox.classList.toggle("off", !note);
+      if (note) hintTimer = setTimeout(function () { hintBox.classList.add("off"); }, 2600);
+    }
+    function setHelp(on) {
+      helpOff = !on;
+      try { if (on) window.localStorage.removeItem(HELP_KEY); else window.localStorage.setItem(HELP_KEY, "1"); } catch (e) { /* fine */ }
+      clearTimeout(hintTimer);
+      hintBox.classList.toggle("off", helpOff);
+      btnHelp.hidden = !helpOff;
+    }
+    $("btnHintClose").addEventListener("click", function () { setHelp(false); btnHelp.focus({ preventScroll: true }); });
+    btnHelp.addEventListener("click", function () { setHelp(true); });
     function updateMeter() {
       var p = pending ? Math.min(1, pending.progress) : 0;
       meterFill.style.width = Math.round(p * 100) + "%";
@@ -1012,7 +1061,10 @@ button{font:inherit;color:inherit}
       var x0 = Math.max(0, -view.ox / view.k), x1 = Math.min(SC.width, (vw - view.ox) / view.k);
       var y0 = Math.max(0, -view.oy / view.k), y1 = Math.min(SC.height, (vh - view.oy) / view.k);
       if (!vw || x1 <= x0 || y1 <= y0) { x0 = 0; x1 = SC.width; y0 = 0; y1 = SC.height; }
-      newPending(a, (x0 + x1) / 2, y0 + (y1 - y0) * 0.6);
+      // keep clear of the floating hint (top) and buttons (bottom)
+      var fy0 = Math.max(y0, (44 - view.oy) / view.k), fy1 = Math.min(y1, (vh - 70 - view.oy) / view.k);
+      if (vw && fy1 - fy0 > 40 / view.k) { y0 = fy0; y1 = fy1; }
+      newPending(a, (x0 + x1) / 2, y0 + (y1 - y0) * (y0 === fy0 ? 0.5 : 0.6));
       clampPending(); layoutPending();
       setMode("adjust");
       if (viaKeyboard) film.focus({ preventScroll: true });
@@ -1081,7 +1133,7 @@ button{font:inherit;color:inherit}
       placements.splice(i, 1);
       selected = null;
       save(); render(); refreshSlots(); updateUI();
-      hint.innerHTML = "<b>" + name + "</b> est retournée sur la planche.";
+      setHint("<b>" + name + "</b> est rangée sur la planche.", true);
     }
 
     /* ---------------- rubbing ---------------- */
@@ -1213,8 +1265,12 @@ button{font:inherit;color:inherit}
       if (e.pointerType === "mouse") e.preventDefault();
       press = { id: slot.dataset.id, slot: slot, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, started: false, timer: 0 };
       slot.classList.add("press");
-      if (e.pointerType !== "mouse") press.timer = setTimeout(beginDrag, 170);
+      // fingers: no lift on a timer; only a move toward the page starts a drag, anything else is a scroll
     });
+    // the strip scrolled under the finger: that was a swipe, never a pick
+    grid.addEventListener("scroll", function () {
+      if (press && !press.started) { press = null; unpress(); suppressClick = true; }
+    }, { passive: true });
     window.addEventListener("pointermove", function (e) {
       if (!press || e.pointerId !== press.pid) return;
       press.x = e.clientX; press.y = e.clientY;
@@ -1223,7 +1279,7 @@ button{font:inherit;color:inherit}
         if (press.type === "mouse") { if (d > 5) beginDrag(); }
         else if (d > 9) {
           if (towardScene(dx, dy)) beginDrag();
-          else { clearTimeout(press.timer); press = null; unpress(); }   // it's a scroll
+          else { clearTimeout(press.timer); press = null; unpress(); suppressClick = true; }   // it's a scroll
         }
         return;
       }
@@ -1237,7 +1293,7 @@ button{font:inherit;color:inherit}
     window.addEventListener("pointercancel", function (e) {
       if (!press || e.pointerId !== press.pid) return;
       clearTimeout(press.timer); unpress();
-      if (press.started) endDrag(true); else press = null;
+      if (press.started) endDrag(true); else { press = null; suppressClick = true; }   // the browser took it: a scroll
     });
     // stop the sheet / page from scrolling once a drag or gesture is active
     document.addEventListener("touchmove", function (e) {
@@ -1246,7 +1302,8 @@ button{font:inherit;color:inherit}
     grid.addEventListener("click", function (e) {
       var slot = e.target.closest(".slot");
       if (!slot) return;
-      if (suppressClick) { suppressClick = false; return; }
+      if (suppressClick && e.detail !== 0) { suppressClick = false; return; }   // (keyboard clicks have detail 0)
+      suppressClick = false;
       if (slot.classList.contains("used") || slot.classList.contains("taken") || sheetBusy()) return;
       placeAtCentre(byId.get(slot.dataset.id), e.detail === 0);
     });
@@ -1254,12 +1311,17 @@ button{font:inherit;color:inherit}
 
     /* ---------------- gestures on the page ---------------- */
     var pointers = new Map(), gesture = null;
-    var pick = null;   // finger/mouse down on a placed sticker: a tap selects it, a drag peels and moves it
+    var pick = null;   // mouse down on a placed sticker: a click selects it, a drag peels and moves it (fingers only pan)
     var lastTap = null;   // for double-tap zoom
     function pt(e) { return { x: e.clientX, y: e.clientY }; }
     // view gestures: one finger on an empty spot pans, two fingers zoom around their middle
     function startPan(e) {
-      gesture = { type: "pan", pid: e.pointerId, sx: e.clientX, sy: e.clientY, ox0: view.ox, oy0: view.oy, moved: false };
+      gesture = { type: "pan", pid: e.pointerId, sx: e.clientX, sy: e.clientY, ox0: view.ox, oy0: view.oy, moved: false, t0: Date.now() };
+    }
+    // a real tap / click: barely moved (moved latches past the threshold), short for fingers, never after a pinch
+    var TAP_MS = 350;
+    function isTap(g, e) {
+      return !g.moved && !g.multi && e.type === "pointerup" && (e.pointerType === "mouse" || Date.now() - g.t0 < TAP_MS);
     }
     function startViewPinch() {
       var ps = Array.from(pointers.values()), b = sceneBox.getBoundingClientRect();
@@ -1293,10 +1355,12 @@ button{font:inherit;color:inherit}
       e.preventDefault();
       if (m === "idle") {
         if (pointers.size === 1) {
-          var hit = hitTest(e.clientX, e.clientY, e.pointerType);
+          // mouse: press on a sticker = click to choose it, drag to peel it (explicit).
+          // finger / pen: always pans; a sticker is chosen only by a real tap (see endPointer)
+          var hit = e.pointerType === "mouse" ? hitTest(e.clientX, e.clientY, "mouse") : null;
           if (hit) {
             pick = { p: hit, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY };
-            if (e.pointerType === "mouse") sceneBox.classList.add("grabbing");
+            sceneBox.classList.add("grabbing");
           } else startPan(e);
         } else if (pointers.size === 2) {
           if (pick) { pick = null; sceneBox.classList.remove("grabbing"); }
@@ -1422,12 +1486,16 @@ button{font:inherit;color:inherit}
       if (!had) return;
       if (gesture && gesture.type === "pan" && gesture.pid === e.pointerId) {
         var g = gesture; gesture = null;
-        if (!g.moved && e.type === "pointerup") tapEmpty(e);
+        if (isTap(g, e)) {
+          var tapHit = !pending && e.pointerType !== "mouse" ? hitTest(e.clientX, e.clientY, e.pointerType) : null;
+          if (tapHit) { lastTap = null; select(tapHit); }
+          else tapEmpty(e);
+        }
       }
       if (gesture && gesture.type === "vpinch" && pointers.size === 1) {
         // one finger left: keep panning with it
         var rest = pointers.keys().next().value, rp = pointers.get(rest);
-        gesture = { type: "pan", pid: rest, sx: rp.x, sy: rp.y, ox0: view.ox, oy0: view.oy, moved: true };
+        gesture = { type: "pan", pid: rest, sx: rp.x, sy: rp.y, ox0: view.ox, oy0: view.oy, moved: true, multi: true, t0: 0 };
         return;
       }
       if (gesture && gesture.type === "pinch" && pointers.size === 1 && pending) {
@@ -1442,8 +1510,13 @@ button{font:inherit;color:inherit}
         if (e.pointerType !== "mouse") rubber.classList.remove("on");
       }
     }
+    // while a finger / the mouse works on the page, the floating buttons step aside (see-through, not in the way)
+    function syncTools() { var g = gesture; toolsEl.classList.toggle("busy", !!g && g.type !== "rub" && (g.type !== "pan" || g.moved)); }
+    sceneBox.addEventListener("pointermove", syncTools);
     sceneBox.addEventListener("pointerup", endPointer);
     sceneBox.addEventListener("pointercancel", endPointer);
+    sceneBox.addEventListener("pointerup", syncTools);       // after endPointer has settled the gesture
+    sceneBox.addEventListener("pointercancel", syncTools);
     sceneBox.addEventListener("pointerleave", function (e) {
       if (e.pointerType === "mouse" && !pointers.size) rubber.classList.remove("on");
     });
