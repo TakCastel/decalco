@@ -99,7 +99,9 @@ button{font:inherit;color:inherit}
 .sub{font-family:var(--font-display);font-weight:500;color:var(--ink-soft);font-size:15px;white-space:nowrap}
 .top-right{display:flex;align-items:center;gap:8px}
 .counter{font-weight:800;font-size:14px;background:var(--accent-soft);color:var(--ink);padding:6px 10px;border-radius:999px;white-space:nowrap}
-.badge{font-family:var(--font-display);background:var(--leaf);color:#fff;padding:5px 9px;border-radius:999px;font-size:13px}
+.badge{font-family:var(--font-display);background:var(--leaf);color:#fff;padding:6px 11px;border-radius:999px;font-size:14px;white-space:nowrap;flex-shrink:0}
+.badge[hidden],.counter[hidden]{display:none}
+.top-right{flex-shrink:0}
 
 .btn{
   min-height:42px;padding:8px 14px;border-radius:12px;border:2px solid var(--btn-edge);
@@ -392,7 +394,7 @@ button{font:inherit;color:inherit}
       <span class="sub">Carnet n°1 · La savane</span>
     </div>
     <div class="top-right">
-      <span class="badge" id="doneBadge" hidden>★ Terminée</span>
+      <span class="badge" id="doneBadge" hidden>★ Terminée !</span>
       <span class="counter" id="counter" aria-live="polite">0 / 0 décalco posée</span>
       <button class="btn small" id="btnNew" type="button">Nouvelle page</button>
     </div>
@@ -882,7 +884,10 @@ button{font:inherit;color:inherit}
       counter.textContent = n + " / " + TOTAL + (n > 1 ? " décalcos posées" : " décalco posée");
       var left = TOTAL - n;
       sheetLeft.textContent = left > 0 ? (left > 1 ? left + " restantes" : "1 restante") : "vide !";
-      doneBadge.hidden = n < TOTAL;
+      var done = n >= TOTAL;
+      doneBadge.hidden = !done;
+      counter.hidden = done;   // the badge replaces "48 / 48" so the header stays on one line
+      $("btnNew").classList.toggle("primary", done);
     }
 
     /* ---------------- UI mode ---------------- */
