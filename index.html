@@ -415,7 +415,7 @@ button{font:inherit;color:inherit}
           <div class="zoombar" id="zoombar" role="group" aria-label="Zoom de la page">
             <button class="zbtn" id="btnZoomIn" type="button" aria-label="Zoomer" title="Zoomer">+</button>
             <button class="zbtn" id="btnZoomOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
-            <button class="zbtn" id="btnZoomFit" type="button" aria-label="Voir toute la page" title="Voir toute la page"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+            <button class="zbtn" id="btnZoomFit" type="button" aria-label="Vue par défaut" title="Vue par défaut"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
           </div>
         </div>
       </div>
@@ -767,22 +767,36 @@ button{font:inherit;color:inherit}
     }
     function stopViewAnim() { viewAnim++; }
     function centreScene() { return { x: (vw / 2 - view.ox) / view.k, y: (vh / 2 - view.oy) / view.k }; }
-    function resetView() {
+    function defaultView() {
+      var k = kDefault();
+      return { k: k, ox: vw / 2 - (SC.width / 2) * k, oy: vh / 2 - (SC.height / 2) * k };
+    }
+    function isDefaultView() {
+      var d = defaultView(), sw = SC.width * d.k, sh = SC.height * d.k;
+      // compare after clamping (a centred scene smaller than the viewport always sits in the middle)
+      var ox = sw <= vw ? (vw - sw) / 2 : d.ox, oy = sh <= vh ? (vh - sh) / 2 : d.oy;
+      return Math.abs(view.k - d.k) < d.k * 0.01 && Math.abs(view.ox - ox) < 2 && Math.abs(view.oy - oy) < 2;
+    }
+    // back to the starting view (whole scene on wide screens, height-filling and centred on tall ones)
+    function resetView(animate) {
       stopViewAnim();
-      view.k = kDefault();
-      view.ox = vw / 2 - (SC.width / 2) * view.k; view.oy = vh / 2 - (SC.height / 2) * view.k;
-      viewChanged();
+      var d = defaultView();
+      if (!animate || mqReduce.matches) { view.k = d.k; view.ox = d.ox; view.oy = d.oy; viewChanged(); return; }
+      var tok = viewAnim, k0 = view.k, x0 = view.ox, y0 = view.oy, t0 = performance.now(), D = 240;
+      (function step() {
+        if (tok !== viewAnim) return;
+        var t = Math.min(1, (performance.now() - t0) / D), e = 1 - Math.pow(1 - t, 3);
+        view.k = k0 + (d.k - k0) * e; view.ox = x0 + (d.ox - x0) * e; view.oy = y0 + (d.oy - y0) * e;
+        viewChanged();
+        if (t < 1) requestAnimationFrame(step);
+      })();
     }
     var vbarH = $("vbarH"), vbarV = $("vbarV"), vthH = vbarH.firstChild, vthV = vbarV.firstChild;
     var zIn = $("btnZoomIn"), zOut = $("btnZoomOut"), zFit = $("btnZoomFit");
     function updateZoomUI() {
       var lo = view.k <= kMin() * 1.01, hi = view.k >= kMax() * 0.99;
       zIn.disabled = hi; zOut.disabled = lo;
-      // "see it all"; once everything is visible on a tall screen it fills the height again
-      var back = lo && tall;
-      zFit.disabled = lo && !tall;
-      var lab = back ? "Remplir l'écran" : "Voir toute la page";
-      zFit.setAttribute("aria-label", lab); zFit.title = lab;
+      zFit.disabled = isDefaultView();   // "vue par défaut"
       sceneBox.classList.toggle("clip", isZoomed());
       var sw = SC.width * view.k, sh = SC.height * view.k;
       vbarH.classList.toggle("on", sw > vw + 1);
@@ -792,10 +806,7 @@ button{font:inherit;color:inherit}
     }
     zIn.addEventListener("click", function () { animateZoom(view.k * 1.5, vw / 2, vh / 2); });
     zOut.addEventListener("click", function () { animateZoom(view.k / 1.5, vw / 2, vh / 2); });
-    zFit.addEventListener("click", function () {
-      var lo = view.k <= kMin() * 1.01;
-      animateZoom(lo && tall ? kDefault() : kMin(), vw / 2, vh / 2);
-    });
+    zFit.addEventListener("click", function () { resetView(true); });
 
     function fit() {
       var r = stageWrap.getBoundingClientRect();
