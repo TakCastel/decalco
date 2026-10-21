@@ -1,9 +1,24 @@
 <!doctype html>
 <html lang="fr">
+<head>
 <meta charset="utf-8">
 <title>Décalco Savane</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Décalco : un jeu de décalcomanies. Fais glisser les animaux de la planche sur la savane, ajuste-les, puis frotte pour les poser.">
+<meta name="theme-color" content="#e8dcc5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1e1914" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Décalco · La savane">
+<meta property="og:description" content="Un jeu de décalcomanies : glisse les animaux sur la savane, puis frotte pour les poser.">
+<meta property="og:url" content="https://takcastel.github.io/decalco/">
+<meta property="og:image" content="https://takcastel.github.io/decalco/assets/scene.jpg">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="1000">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" as="image" href="assets/scene.webp" type="image/webp" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
@@ -58,7 +73,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overscroll-behavior:none}
 body{
   background:var(--bg);
   background-image:radial-gradient(var(--bg-dot) 1px,transparent 1.5px);
@@ -108,11 +123,6 @@ button{font:inherit;color:inherit}
 @media (min-width:900px) and (orientation:landscape), (orientation:landscape) and (max-height:560px){
   .main{grid-template-columns:minmax(0,1fr) clamp(200px,24vw,330px);grid-template-rows:minmax(0,1fr) auto;
     grid-template-areas:"stage sheet" "tools sheet"}
-  .sheet{min-height:0;display:flex;flex-direction:column}
-  .sheet-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
-    grid-auto-flow:row !important;grid-template-rows:none !important;
-    grid-template-columns:repeat(auto-fill,minmax(76px,1fr));grid-auto-rows:78px;grid-auto-columns:auto !important}
-  .slot{touch-action:pan-y !important}
 }
 
 /* ----- the booklet page ----- */
@@ -168,7 +178,7 @@ button{font:inherit;color:inherit}
 @keyframes wobble{0%,100%{rotate:-8deg}50%{rotate:8deg}}
 
 /* ----- tool bar ----- */
-.hint{margin:0;font-weight:700;font-size:15px;color:var(--ink-soft);text-align:center;flex:1 1 260px;min-width:0}
+.hint{margin:0;font-weight:800;font-size:16px;color:var(--ink);text-align:center;flex:1 1 260px;min-width:0}
 .hint b{color:var(--ink)}
 .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
 .actions[hidden]{display:none}
@@ -177,36 +187,75 @@ button{font:inherit;color:inherit}
 .meter-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f6b13d);border-radius:inherit}
 @media (max-width:520px){.long{display:none}.hint{font-size:14px}}
 
-/* ----- the transfer sheet ----- */
+/* ----- the transfer sheet -----
+   A bright sticker sheet in both themes: opaque cream paper, white cards, full-colour stickers. */
 .sheet{
-  background:var(--sheet-bg);
-  background-image:
-    linear-gradient(115deg,var(--sheet-sheen) 0%,transparent 28%,transparent 58%,var(--sheet-sheen) 72%,transparent 88%),
-    radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.5px);
-  background-size:100% 100%,9px 9px;
-  -webkit-backdrop-filter:blur(8px) saturate(.8);backdrop-filter:blur(8px) saturate(.8);
-  border:1px solid var(--sheet-edge);border-radius:10px;
-  box-shadow:0 6px 18px rgba(60,40,20,.18),inset 0 0 0 1px rgba(255,255,255,.25);
-  padding:6px 8px 8px;
+  --sh-paper:#fffaf0;--sh-edge:#e8d6b3;--sh-ink:#3b2a1c;--sh-soft:#8a6d4c;
+  --card-edge:#f0e2c6;--card-lip:#e2cfa9;--hot:#e2702a;--hot-lip:#f2b07e;
+  background:var(--sh-paper);color:var(--sh-ink);
+  border:2px solid var(--sh-edge);border-radius:16px;
+  box-shadow:0 3px 0 var(--sh-edge),0 12px 26px rgba(40,25,10,.28);
+  padding:8px 8px 10px;
 }
-.sheet-label{font-family:var(--font-display);font-weight:600;font-size:13px;color:var(--ink-soft);padding:0 4px 4px;display:flex;justify-content:space-between;gap:8px}
-@media (orientation:portrait) and (min-height:760px){.sheet-grid{grid-template-rows:repeat(3,70px) !important}}
-.sheet-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,70px);grid-auto-columns:72px;gap:4px;
-  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;scrollbar-width:thin;padding:2px}
-.slot{position:relative;border:0;background:transparent;padding:4px;border-radius:8px;cursor:grab;
-  display:flex;align-items:center;justify-content:center;touch-action:pan-x;
-  -webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
-.slot img{max-width:calc(48% + var(--s,1) * 32%);max-height:calc(48% + var(--s,1) * 32%);object-fit:contain;pointer-events:none;
-  filter:saturate(.5) contrast(.8) brightness(1.07) grayscale(.12);opacity:.82;-webkit-user-drag:none;
-  transition:transform .15s ease}
-.slot::after{content:"";position:absolute;inset:3px;border-radius:7px;background:rgba(255,255,255,.10);pointer-events:none}
-@media (hover:hover){.slot:not(.used):not(.taken):hover img{transform:scale(1.08) rotate(-2deg)}}
-.slot.taken img{opacity:.25}
-.slot.taken{cursor:default}
-.slot.used{cursor:default}
-.slot.used img{filter:var(--ghost-filter);opacity:.16}
-.slot.used::after{background:none;border:2px dashed var(--ghost)}
-.slot .fallback{font-size:11px;font-weight:800;color:var(--ink-soft);text-align:center}
+.sheet-label{font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--sh-ink);
+  padding:2px 4px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#sheetLeft{font-size:12px;font-weight:600;background:var(--hot);color:#fff;padding:3px 9px;border-radius:999px;white-space:nowrap}
+#sheetLeft:empty{display:none}
+
+/* phone / portrait: one horizontal strip that scrolls sideways */
+.sheet-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,78px);grid-auto-columns:80px;gap:6px;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;padding:3px 3px 8px;
+  scrollbar-width:thin;scrollbar-color:#d6bf95 transparent}
+@media (orientation:portrait) and (min-height:760px){.sheet-grid{grid-template-rows:repeat(3,78px)}}
+.sheet-grid::-webkit-scrollbar{width:8px;height:8px}
+.sheet-grid::-webkit-scrollbar-thumb{background:#d6bf95;border-radius:99px}
+.sheet-grid::-webkit-scrollbar-track{background:transparent}
+
+.slot{position:relative;background:#fff;border:2px solid var(--card-edge);border-radius:14px;padding:4px;cursor:grab;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;touch-action:pan-x;
+  box-shadow:0 3px 0 var(--card-lip);
+  transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+  -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.slot img{display:block;min-height:0;max-width:calc(62% + var(--s,1) * 30%);max-height:calc(62% + var(--s,1) * 30%);
+  object-fit:contain;pointer-events:none;-webkit-user-drag:none;
+  transition:transform .18s cubic-bezier(.3,1.6,.5,1)}
+.slot-name{display:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;
+  font-family:var(--font-body);font-weight:800;font-size:11px;line-height:1.1;color:var(--sh-soft)}
+@media (hover:hover){
+  .slot:not(.used):not(.taken):hover{border-color:var(--hot);transform:translateY(-3px);
+    box-shadow:0 4px 0 var(--hot-lip),0 10px 16px rgba(226,112,42,.22)}
+  .slot:not(.used):not(.taken):hover img{transform:scale(1.1) rotate(-4deg)}
+  .slot:not(.used):not(.taken):hover .slot-name{color:var(--hot)}
+}
+.slot:not(.used):not(.taken):active,.slot.press{border-color:var(--hot);transform:translateY(2px);
+  box-shadow:0 1px 0 var(--hot-lip);cursor:grabbing}
+.slot.press img{transform:scale(1.12) rotate(-5deg)}
+.slot:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* out of play: already rubbed on the page, or currently on the page as a film */
+.slot.used,.slot.taken{cursor:default;transform:none;box-shadow:none}
+.slot.used{background:#f6eedd;border:2px dashed #d9c49c}
+.slot.used img{filter:grayscale(1);opacity:.28}
+.slot.taken{background:#fff3e8;border-color:var(--hot)}
+.slot.taken img{filter:grayscale(.6);opacity:.4}
+.slot.used .slot-name,.slot.taken .slot-name{opacity:.6}
+.slot .fallback{font-size:11px;font-weight:800;color:var(--sh-soft);text-align:center}
+.slot .fallback + .slot-name{display:none !important}
+
+/* wide screens: the sheet is a column on the right that scrolls vertically.
+   Must come after the base .sheet-grid rules so it wins. */
+@media (min-width:900px) and (orientation:landscape), (orientation:landscape) and (max-height:560px){
+  .sheet{min-height:0;display:flex;flex-direction:column}
+  .sheet-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+    grid-auto-flow:row;grid-template-rows:none;grid-auto-columns:auto;
+    grid-template-columns:repeat(auto-fill,minmax(80px,1fr));grid-auto-rows:84px;align-content:start}
+  .slot{touch-action:pan-y}
+}
+@media (min-width:900px) and (orientation:landscape) and (min-height:561px){
+  .sheet-grid{grid-auto-rows:104px;gap:8px}
+  .slot-name{display:block}
+  .slot img{max-width:calc(56% + var(--s,1) * 30%);max-height:calc(50% + var(--s,1) * 26%)}
+}
 
 /* ----- dialogs ----- */
 .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--scrim)}
@@ -228,6 +277,8 @@ button{font:inherit;color:inherit}
   .confetti{display:none}
 }
 </style>
+</head>
+<body>
 
 <div class="app" id="app">
   <header class="top">
@@ -380,9 +431,12 @@ button{font:inherit;color:inherit}
       img.addEventListener("error", done, { once: true });
     }
     track(sceneImg);
+    sceneImg.decoding = "async";
+    sceneImg.fetchPriority = "high";
     sceneImg.src = SC.src;
     AN.forEach(function (a) {
       var i = new Image();
+      i.decoding = "async";
       track(i);
       i.src = a.src;
       images.set(a.id, i);
@@ -507,9 +561,12 @@ button{font:inherit;color:inherit}
         b.style.setProperty("--s", Math.max(0.4, Math.min(1.6, a.scale || 1)) / 1.6);
         b.title = a.name;
         var img = document.createElement("img");
-        img.alt = ""; img.draggable = false; img.src = a.src;
+        img.alt = ""; img.draggable = false; img.decoding = "async"; img.src = a.src;
         img.onerror = function () { var f = document.createElement("span"); f.className = "fallback"; f.textContent = a.name; img.replaceWith(f); };
         b.appendChild(img);
+        var nm = document.createElement("span");
+        nm.className = "slot-name"; nm.textContent = a.name; nm.setAttribute("aria-hidden", "true");
+        b.appendChild(nm);
         grid.appendChild(b);
         slots.set(a.id, b);
       });
@@ -739,6 +796,7 @@ button{font:inherit;color:inherit}
       setMode("drag");
       try { press.slot.setPointerCapture(press.pid); } catch (e) {}
     }
+    function unpress() { var s = grid.querySelector(".slot.press"); if (s) s.classList.remove("press"); }
     function endDrag(cancelled) {
       var p = press; press = null;
       if (!p || !p.started || !pending) return;
@@ -758,6 +816,7 @@ button{font:inherit;color:inherit}
       suppressClick = false;
       if (e.pointerType === "mouse") e.preventDefault();
       press = { id: slot.dataset.id, slot: slot, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, started: false, timer: 0 };
+      slot.classList.add("press");
       if (e.pointerType !== "mouse") press.timer = setTimeout(beginDrag, 170);
     });
     window.addEventListener("pointermove", function (e) {
@@ -768,7 +827,7 @@ button{font:inherit;color:inherit}
         if (press.type === "mouse") { if (d > 5) beginDrag(); }
         else if (d > 9) {
           if (towardScene(dx, dy)) beginDrag();
-          else { clearTimeout(press.timer); press = null; }   // it's a scroll
+          else { clearTimeout(press.timer); press = null; unpress(); }   // it's a scroll
         }
         return;
       }
@@ -776,12 +835,12 @@ button{font:inherit;color:inherit}
     });
     window.addEventListener("pointerup", function (e) {
       if (!press || e.pointerId !== press.pid) return;
-      clearTimeout(press.timer);
+      clearTimeout(press.timer); unpress();
       if (press.started) endDrag(false); else press = null;
     });
     window.addEventListener("pointercancel", function (e) {
       if (!press || e.pointerId !== press.pid) return;
-      clearTimeout(press.timer);
+      clearTimeout(press.timer); unpress();
       if (press.started) endDrag(true); else press = null;
     });
     // stop the sheet / page from scrolling once a drag or gesture is active
@@ -984,4 +1043,5 @@ button{font:inherit;color:inherit}
   }
 })();
 </script>
+</body>
 </html>

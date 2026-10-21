@@ -28,6 +28,8 @@ def inline_script(m):
 
 
 html = (ROOT / "index.html").read_text()
+# Image preloads are pointless once images are inlined (and would duplicate them).
+html = re.sub(r'<link\s+rel="preload"\s+as="image"[^>]*>\n?', "", html)
 html = re.sub(r'<script\s+src="([^"]+)"\s*>\s*</script>', inline_script, html)
 html = inline_assets(html)
 OUT.parent.mkdir(exist_ok=True)

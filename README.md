@@ -10,5 +10,5 @@ Le jeu tourne directement dans le navigateur : ouvrir `index.html` via un serveu
 
 - `index.html` : le jeu
 - `src/assets.js` : la liste des stickers et du fond
-- `assets/stickers/`, `assets/scene.jpg` : les images (générées avec ChatGPT, voir `assets/CREDITS.md`)
+- `assets/stickers/*.webp`, `assets/scene.webp` : les images (`assets/scene.jpg` sert d’aperçu og:image) (générées avec ChatGPT, voir `assets/CREDITS.md`)
 - `build.py` : crée une version en un seul fichier (`dist/decalco.html`), utile pour l'envoyer par mail
