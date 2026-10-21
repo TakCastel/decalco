@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<title>Décalco Savane</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:"Fredoka","Baloo 2","Trebuchet MS","Avenir Next",system-ui,sans-serif;
+  --font-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --bg:#e8dcc5;            /* kraft desk */
+  --bg-dot:rgba(120,90,50,.07);
+  --ink:#3b2a1c;
+  --ink-soft:#7a6450;
+  --paper:#fbf6ea;
+  --paper-edge:#e3d6bb;
+  --paper-shadow:rgba(70,45,20,.28);
+  --hole:#cbbd9f;
+  --accent:#e2702a;
+  --accent-ink:#fff;
+  --accent-soft:#fde3cd;
+  --leaf:#4f7d2c;
+  --btn:#fffaf0;
+  --btn-edge:#d8c6a6;
+  --sheet-bg:rgba(250,248,240,.62);
+  --sheet-edge:rgba(255,255,255,.75);
+  --sheet-sheen:rgba(255,255,255,.55);
+  --ghost:rgba(90,70,50,.28);
+  --ghost-filter:brightness(0);
+  --focus:#1d6fd6;
+  --scrim:rgba(40,25,10,.45);
+  --card:#fffaf0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1e1914; --bg-dot:rgba(255,230,190,.04);
+    --ink:#f3e7d3; --ink-soft:#bba88f;
+    --paper:#ece2cd; --paper-edge:#c9b994; --paper-shadow:rgba(0,0,0,.6); --hole:#2a221b;
+    --accent:#f08a3e; --accent-ink:#1e1206; --accent-soft:#4a2e18;
+    --btn:#2c241c; --btn-edge:#4a3d2f;
+    --sheet-bg:rgba(235,230,218,.16); --sheet-edge:rgba(255,255,255,.18); --sheet-sheen:rgba(255,255,255,.12);
+    --ghost:rgba(255,240,220,.28); --ghost-filter:brightness(0) invert(1);
+    --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1e1914; --bg-dot:rgba(255,230,190,.04);
+  --ink:#f3e7d3; --ink-soft:#bba88f;
+  --paper:#ece2cd; --paper-edge:#c9b994; --paper-shadow:rgba(0,0,0,.6); --hole:#2a221b;
+  --accent:#f08a3e; --accent-ink:#1e1206; --accent-soft:#4a2e18;
+  --btn:#2c241c; --btn-edge:#4a3d2f;
+  --sheet-bg:rgba(235,230,218,.16); --sheet-edge:rgba(255,255,255,.18); --sheet-sheen:rgba(255,255,255,.12);
+  --ghost:rgba(255,240,220,.28); --ghost-filter:brightness(0) invert(1);
+  --focus:#7cb4ff; --scrim:rgba(0,0,0,.6); --card:#2c241c;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(var(--bg-dot) 1px,transparent 1.5px);
+  background-size:7px 7px;
+  color:var(--ink);font-family:var(--font-body);
+  overflow:hidden;-webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.app{
+  height:100%;display:flex;flex-direction:column;
+  padding-top:max(8px,env(safe-area-inset-top,0px));
+  padding-bottom:max(10px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  max-width:1500px;margin:0 auto;
+}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:2px 0 8px}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.logo{font-family:var(--font-display);font-weight:700;font-size:clamp(24px,4vw,32px);color:var(--accent);letter-spacing:.01em;line-height:1;
+  text-shadow:1px 1px 0 var(--paper),2px 2px 0 rgba(0,0,0,.08)}
+.sub{font-family:var(--font-display);font-weight:500;color:var(--ink-soft);font-size:15px;white-space:nowrap}
+.top-right{display:flex;align-items:center;gap:8px}
+.counter{font-weight:800;font-size:14px;background:var(--accent-soft);color:var(--ink);padding:6px 10px;border-radius:999px;white-space:nowrap}
+.badge{font-family:var(--font-display);background:var(--leaf);color:#fff;padding:5px 9px;border-radius:999px;font-size:13px}
+
+.btn{
+  min-height:42px;padding:8px 14px;border-radius:12px;border:2px solid var(--btn-edge);
+  background:var(--btn);font-weight:800;font-size:15px;cursor:pointer;white-space:nowrap;
+  box-shadow:0 2px 0 var(--btn-edge);transition:transform .08s ease,box-shadow .08s ease;
+  touch-action:manipulation;
+}
+.btn:active{transform:translateY(2px);box-shadow:0 0 0 var(--btn-edge)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.btn.small{min-height:36px;padding:5px 10px;font-size:14px}
+.btn.icon{min-width:42px;padding:6px 10px;font-size:20px;line-height:1}
+.btn[disabled]{opacity:.45;cursor:default}
+
+/* ----- main layout ----- */
+.main{flex:1;min-height:0;display:grid;gap:10px;
+  grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;
+  grid-template-areas:"stage" "tools" "sheet"}
+.stage-wrap{grid-area:stage;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
+.tools{grid-area:tools;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;justify-content:center;min-height:44px;position:relative;z-index:1}
+.sheet{grid-area:sheet;position:relative;z-index:1}
+@media (min-width:900px) and (orientation:landscape), (orientation:landscape) and (max-height:560px){
+  .main{grid-template-columns:minmax(0,1fr) clamp(200px,24vw,330px);grid-template-rows:minmax(0,1fr) auto;
+    grid-template-areas:"stage sheet" "tools sheet"}
+  .sheet{min-height:0;display:flex;flex-direction:column}
+  .sheet-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+    grid-auto-flow:row !important;grid-template-rows:none !important;
+    grid-template-columns:repeat(auto-fill,minmax(76px,1fr));grid-auto-rows:78px;grid-auto-columns:auto !important}
+  .slot{touch-action:pan-y !important}
+}
+
+/* ----- the booklet page ----- */
+.page{
+  --pp:10px;--bind:16px;
+  position:relative;padding:var(--pp);padding-top:calc(var(--pp) + var(--bind));
+  background:var(--paper);border-radius:6px 6px 10px 10px;
+  box-shadow:0 1px 0 var(--paper-edge),0 3px 0 var(--paper-edge),0 5px 0 #d9cba9,0 14px 26px var(--paper-shadow);
+}
+@media (min-width:700px){.page{--pp:16px;--bind:20px}}
+.page::after{ /* faint paper fibre */
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.5;
+  background-image:repeating-linear-gradient(0deg,rgba(120,90,40,.035) 0 1px,transparent 1px 3px);
+}
+.binding{position:absolute;left:14px;right:14px;top:-10px;height:30px;pointer-events:none;z-index:3;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='30'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23777'/%3E%3Cstop offset='.45' stop-color='%23eee'/%3E%3Cstop offset='1' stop-color='%23888'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='13' cy='22' r='3.6' fill='%23000' fill-opacity='.35'/%3E%3Cpath d='M13 22 C13 8 9 2 13 2' fill='none' stroke='url(%23g)' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:space;background-size:26px 30px}
+.scene-box{position:relative;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:2px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.scene-box canvas#scene{display:block;width:100%;height:100%;border-radius:2px}
+.scene-box.rubbing{cursor:none}
+
+/* pending transfer on its film */
+.film{position:absolute;left:0;top:0;--m:8px;z-index:5;touch-action:none;cursor:grab;outline-offset:3px}
+.film[hidden]{display:none}
+.film::before{content:"";position:absolute;inset:0;border-radius:4px;
+  border:1px solid rgba(255,255,255,.75);
+  background:linear-gradient(135deg,rgba(255,255,255,.30),rgba(255,255,255,.10) 45%,rgba(255,255,255,.22));
+  box-shadow:0 0 0 1px rgba(0,0,0,.12),0 4px 10px rgba(0,0,0,.18)}
+.film .art{position:absolute;inset:var(--m);transform:scaleX(var(--fx,1))}
+.film .art img,.film .art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.film .art img{filter:grayscale(.45) saturate(.6) brightness(1.08) contrast(.85);opacity:.58;-webkit-user-drag:none}
+.film.lifting{filter:drop-shadow(0 12px 14px rgba(0,0,0,.28));transform:scale(1.04);cursor:grabbing}
+.film.rubmode{cursor:none}
+.film.rubmode::before{border-style:dashed;border-color:var(--accent)}
+.handle{position:absolute;right:-14px;bottom:-14px;width:30px;height:30px;border-radius:50%;
+  background:var(--accent);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:nwse-resize;touch-action:none}
+.handle::after{content:"";position:absolute;inset:7px;border-right:2px solid #fff;border-bottom:2px solid #fff}
+.film.rubmode .handle,.film.lifting .handle,.film.settle .handle{display:none}
+.film.settle{animation:press .55s cubic-bezier(.3,1.4,.5,1) both}
+.film.settle::before{animation:peel .6s ease-in forwards}
+.film.settle .art img{opacity:0;transition:opacity .3s}
+.film.leaving{transition:opacity .22s ease,transform .22s ease;opacity:0;transform:scale(.7)}
+@keyframes press{0%{transform:scale(1.06)}55%{transform:scale(.98)}100%{transform:scale(1)}}
+@keyframes peel{0%{transform:none;opacity:1}100%{transform:translate(18px,-26px) rotate(5deg);opacity:0}}
+
+.rubber{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;pointer-events:none;z-index:6;display:none;
+  background:radial-gradient(circle at 35% 30%,#fff 0 12%,#d9dde2 30%,#9aa3ad 70%,#7d858f);
+  border:2px solid rgba(60,60,70,.55);box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.rubber::after{content:"";position:absolute;inset:9px;border-radius:50%;border:2px dotted rgba(70,70,80,.45)}
+.rubber.on{display:block}
+.rubber.active{animation:wobble .18s linear infinite}
+@keyframes wobble{0%,100%{rotate:-8deg}50%{rotate:8deg}}
+
+/* ----- tool bar ----- */
+.hint{margin:0;font-weight:700;font-size:15px;color:var(--ink-soft);text-align:center;flex:1 1 260px;min-width:0}
+.hint b{color:var(--ink)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+.actions[hidden]{display:none}
+.meter{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.meter-bar{width:90px;height:10px;border-radius:99px;background:var(--btn-edge);overflow:hidden}
+.meter-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f6b13d);border-radius:inherit}
+@media (max-width:520px){.long{display:none}.hint{font-size:14px}}
+
+/* ----- the transfer sheet ----- */
+.sheet{
+  background:var(--sheet-bg);
+  background-image:
+    linear-gradient(115deg,var(--sheet-sheen) 0%,transparent 28%,transparent 58%,var(--sheet-sheen) 72%,transparent 88%),
+    radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.5px);
+  background-size:100% 100%,9px 9px;
+  -webkit-backdrop-filter:blur(8px) saturate(.8);backdrop-filter:blur(8px) saturate(.8);
+  border:1px solid var(--sheet-edge);border-radius:10px;
+  box-shadow:0 6px 18px rgba(60,40,20,.18),inset 0 0 0 1px rgba(255,255,255,.25);
+  padding:6px 8px 8px;
+}
+.sheet-label{font-family:var(--font-display);font-weight:600;font-size:13px;color:var(--ink-soft);padding:0 4px 4px;display:flex;justify-content:space-between;gap:8px}
+@media (orientation:portrait) and (min-height:760px){.sheet-grid{grid-template-rows:repeat(3,70px) !important}}
+.sheet-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,70px);grid-auto-columns:72px;gap:4px;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;scrollbar-width:thin;padding:2px}
+.slot{position:relative;border:0;background:transparent;padding:4px;border-radius:8px;cursor:grab;
+  display:flex;align-items:center;justify-content:center;touch-action:pan-x;
+  -webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.slot img{max-width:calc(48% + var(--s,1) * 32%);max-height:calc(48% + var(--s,1) * 32%);object-fit:contain;pointer-events:none;
+  filter:saturate(.5) contrast(.8) brightness(1.07) grayscale(.12);opacity:.82;-webkit-user-drag:none;
+  transition:transform .15s ease}
+.slot::after{content:"";position:absolute;inset:3px;border-radius:7px;background:rgba(255,255,255,.10);pointer-events:none}
+@media (hover:hover){.slot:not(.used):not(.taken):hover img{transform:scale(1.08) rotate(-2deg)}}
+.slot.taken img{opacity:.25}
+.slot.taken{cursor:default}
+.slot.used{cursor:default}
+.slot.used img{filter:var(--ghost-filter);opacity:.16}
+.slot.used::after{background:none;border:2px dashed var(--ghost)}
+.slot .fallback{font-size:11px;font-weight:800;color:var(--ink-soft);text-align:center}
+
+/* ----- dialogs ----- */
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--scrim)}
+.modal[hidden]{display:none}
+.card{background:var(--card);color:var(--ink);border-radius:18px;padding:22px 22px 18px;max-width:360px;width:100%;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);text-align:center;animation:pop .3s cubic-bezier(.3,1.5,.5,1)}
+.card h2{font-family:var(--font-display);font-weight:700;font-size:26px;margin:0 0 6px;color:var(--accent)}
+.card p{margin:0 0 16px;font-weight:600;color:var(--ink-soft)}
+.card .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.stamp{font-size:44px;line-height:1;margin-bottom:6px}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:49;overflow:hidden}
+.confetti span{position:absolute;top:-40px;font-size:24px;animation:fall 2.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.error{padding:24px;font-weight:700}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  .confetti{display:none}
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo">Décalco</span>
+      <span class="sub">Carnet n°1 · La savane</span>
+    </div>
+    <div class="top-right">
+      <span class="badge" id="doneBadge" hidden>★ Terminée</span>
+      <span class="counter" id="counter" aria-live="polite">0 / 0 décalco posée</span>
+      <button class="btn small" id="btnNew" type="button">Nouvelle page</button>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+    <section class="stage-wrap" id="stageWrap" aria-label="La page du carnet">
+      <div class="page" id="page">
+        <div class="binding" aria-hidden="true"></div>
+        <div class="scene-box" id="sceneBox">
+          <canvas id="scene" role="img" aria-label="La page du carnet : une savane avec les décalcomanies déjà posées"></canvas>
+          <div class="film" id="film" hidden tabindex="0" role="group"
+               aria-label="Décalco à placer. Flèches pour déplacer, + et − pour la taille.">
+            <div class="art" id="art"><img id="filmImg" alt="" draggable="false"><canvas id="ink"></canvas></div>
+            <div class="handle" id="handle" aria-hidden="true" title="Agrandir / rétrécir"></div>
+          </div>
+          <div class="rubber" id="rubber" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tools" id="tools">
+      <p class="hint" id="hint" role="status" aria-live="polite"></p>
+      <div class="actions" id="actsAdjust" hidden>
+        <button class="btn icon" id="btnSmaller" type="button" aria-label="Plus petite">−</button>
+        <button class="btn icon" id="btnBigger" type="button" aria-label="Plus grande">+</button>
+        <button class="btn" id="btnFlip" type="button">↔ Retourner</button>
+        <button class="btn" id="btnCancel" type="button">↩ Remettre<span class="long"> sur la planche</span></button>
+        <button class="btn primary" id="btnRub" type="button">✋ Frotter</button>
+      </div>
+      <div class="actions" id="actsRub" hidden>
+        <span class="meter" aria-hidden="true"><span class="meter-bar"><i id="meterFill"></i></span><span id="meterText">0 %</span></span>
+        <button class="btn" id="btnAdjust" type="button">✥ Ajuster</button>
+        <button class="btn primary" id="btnAuto" type="button">✨ Frotter pour moi</button>
+      </div>
+    </div>
+
+    <aside class="sheet" id="sheet" aria-label="La planche de décalcomanies">
+      <div class="sheet-label"><span>Planche de décalcomanies</span><span id="sheetLeft"></span></div>
+      <div class="sheet-grid" id="sheetGrid"></div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="confirmNew" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="card">
+    <div class="stamp" aria-hidden="true">📖</div>
+    <h2 id="confirmTitle">Nouvelle page ?</h2>
+    <p>Toutes les décalcos posées seront effacées et la planche sera toute neuve.</p>
+    <div class="row">
+      <button class="btn" id="btnNewNo" type="button">Non, je garde</button>
+      <button class="btn primary" id="btnNewYes" type="button">Oui, nouvelle page</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="doneModal" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="card">
+    <div class="stamp" aria-hidden="true">🏆</div>
+    <h2 id="doneTitle">Page terminée !</h2>
+    <p>Toutes les décalcos sont posées. Quelle belle savane !</p>
+    <div class="row">
+      <button class="btn primary" id="btnDoneOk" type="button">Admirer ma page</button>
+      <button class="btn" id="btnDoneNew" type="button">Nouvelle page</button>
+    </div>
+  </div>
+</div>
+
+<script src="src/assets.js"></script>
+<script>
+(function boot() {
+  "use strict";
+
+  function fail(msg) {
+    var a = document.getElementById("app");
+    if (a) a.innerHTML = '<p class="error">' + msg + "</p>";
+  }
+  if (window.ANIMALS && window.SCENE) { start(); return; }
+  var s = document.createElement("script");
+  s.src = "src/assets.mock.js";
+  s.onload = function () { if (window.ANIMALS && window.SCENE) start(); else fail("Impossible de charger les décalcos."); };
+  s.onerror = function () { fail("Impossible de charger les décalcos."); };
+  document.body.appendChild(s);
+
+  function start() {
+    var SC = window.SCENE;
+    var AN = window.ANIMALS.slice();
+    var byId = new Map(AN.map(function (a) { return [a.id, a]; }));
+    var TOTAL = AN.length;
+    var STORE = "decalco-savane-v1";
+    var RUB_TRAVEL = 6;        // sticker sizes of rubbing needed
+    var DEFAULT_H = 0.18;      // fraction of scene height for scale=1
+    var MIN_H = 0.05, MAX_H = 0.75;
+    var mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var mqWide = window.matchMedia("(min-width:900px) and (orientation:landscape), (orientation:landscape) and (max-height:560px)");
+    var $ = function (id) { return document.getElementById(id); };
+
+    var stageWrap = $("stageWrap"), page = $("page"), sceneBox = $("sceneBox"), canvas = $("scene");
+    var film = $("film"), art = $("art"), filmImg = $("filmImg"), ink = $("ink"), handle = $("handle"), rubber = $("rubber");
+    var grid = $("sheetGrid"), counter = $("counter"), hint = $("hint"), sheetLeft = $("sheetLeft"), doneBadge = $("doneBadge");
+    var actsAdjust = $("actsAdjust"), actsRub = $("actsRub"), meterFill = $("meterFill"), meterText = $("meterText");
+
+    /* ---------------- state ---------------- */
+    var placements = [];   // {id,x,y,h,flip} in scene units (x,y = centre)
+    var pending = null;    // {a,x,y,h,flip,mode:'drag'|'adjust'|'rub'|'settling',progress,mask}
+    var autoRunning = false;
+
+    function load() {
+      try {
+        var raw = window.localStorage.getItem(STORE);
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (d && Array.isArray(d.placements)) {
+          var seen = new Set();
+          placements = d.placements.filter(function (p) {
+            if (!p || !byId.has(p.id) || seen.has(p.id)) return false;
+            seen.add(p.id);
+            return isFinite(p.x) && isFinite(p.y) && isFinite(p.h) && p.h > 0;
+          });
+        }
+      } catch (e) { placements = []; }
+    }
+    function save() {
+      try {
+        window.localStorage.setItem(STORE, JSON.stringify({ v: 1, placements: placements.map(function (p) {
+          return { id: p.id, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, h: Math.round(p.h * 10) / 10, flip: !!p.flip };
+        }) }));
+      } catch (e) { /* storage unavailable: fine */ }
+    }
+    function isUsed(id) { return placements.some(function (p) { return p.id === id; }); }
+
+    /* ---------------- images ---------------- */
+    var images = new Map();  // id -> HTMLImageElement (complete or not)
+    var sceneImg = new Image();
+    function imgReady(i) { return i && i.complete && i.naturalWidth > 0; }
+    var pendingLoads = 0;
+    function track(img) {
+      pendingLoads++;
+      var done = function () { pendingLoads--; scheduleRender(); };
+      img.addEventListener("load", done, { once: true });
+      img.addEventListener("error", done, { once: true });
+    }
+    track(sceneImg);
+    sceneImg.src = SC.src;
+    AN.forEach(function (a) {
+      var i = new Image();
+      track(i);
+      i.src = a.src;
+      images.set(a.id, i);
+    });
+    function aspectOf(a) {
+      if (a.w && a.h) return a.w / a.h;
+      var i = images.get(a.id);
+      return imgReady(i) ? i.naturalWidth / i.naturalHeight : 1;
+    }
+
+    /* ---------------- printed look (cached per sticker) ---------------- */
+    function mulberry(seed) {
+      return function () {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h; }
+    var noiseTile = null;
+    function getNoise() {
+      if (noiseTile) return noiseTile;
+      var c = document.createElement("canvas"); c.width = c.height = 96;
+      var x = c.getContext("2d"), d = x.createImageData(96, 96), r = mulberry(42);
+      for (var i = 0; i < d.data.length; i += 4) {
+        var v = 215 + r() * 40; if (r() < 0.03) v -= 45;
+        d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255;
+      }
+      x.putImageData(d, 0, 0);
+      return (noiseTile = c);
+    }
+    var printed = new Map();
+    function printedOf(a) {
+      if (printed.has(a.id)) return printed.get(a.id);
+      var img = images.get(a.id);
+      if (!imgReady(img)) return null;
+      var w = img.naturalWidth, h = img.naturalHeight;
+      var c = document.createElement("canvas"); c.width = w; c.height = h;
+      var x = c.getContext("2d");
+      x.drawImage(img, 0, 0);
+      // paper grain multiplied into the ink
+      x.globalCompositeOperation = "multiply"; x.globalAlpha = 0.28;
+      x.fillStyle = x.createPattern(getNoise(), "repeat"); x.fillRect(0, 0, w, h);
+      x.globalCompositeOperation = "destination-in"; x.globalAlpha = 1;
+      x.drawImage(img, 0, 0);
+      // tiny transfer imperfections (specks where the ink did not take)
+      x.globalCompositeOperation = "destination-out";
+      var r = mulberry(hash(a.id)), n = Math.round((w * h) / 900), rad = Math.max(0.6, w / 300);
+      for (var i = 0; i < n; i++) {
+        x.globalAlpha = 0.2 + r() * 0.5;
+        x.beginPath(); x.arc(r() * w, r() * h, rad * (0.4 + r()), 0, 6.283); x.fill();
+      }
+      x.globalAlpha = 1; x.globalCompositeOperation = "source-over";
+      printed.set(a.id, c);
+      return c;
+    }
+
+    /* ---------------- scene rendering ---------------- */
+    var dpr = 1, cssW = 0, cssH = 0;
+    function render() {
+      var ctx = canvas.getContext("2d");
+      var W = canvas.width, H = canvas.height;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      if (imgReady(sceneImg)) ctx.drawImage(sceneImg, 0, 0, W, H);
+      else { ctx.fillStyle = "#e9d7b0"; ctx.fillRect(0, 0, W, H); }
+      var k = W / SC.width;
+      placements.forEach(function (p) { drawPrinted(ctx, p, k); });
+    }
+    function drawPrinted(ctx, p, k) {
+      var a = byId.get(p.id); if (!a) return;
+      var pc = printedOf(a); if (!pc) return;
+      var h = p.h * k, w = h * aspectOf(a);
+      ctx.save();
+      ctx.translate(p.x * k, p.y * k);
+      if (p.flip) ctx.scale(-1, 1);
+      ctx.globalAlpha = 0.94;
+      ctx.drawImage(pc, -w / 2, -h / 2, w, h);
+      ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = 0.22;  // lets the page show through a little
+      ctx.drawImage(pc, -w / 2, -h / 2, w, h);
+      ctx.restore();
+    }
+    var renderQueued = false;
+    function scheduleRender() {
+      if (renderQueued) return; renderQueued = true;
+      requestAnimationFrame(function () { renderQueued = false; render(); if (pending) drawInk(); });
+    }
+
+    /* ---------------- layout / fit ---------------- */
+    function fit() {
+      var r = stageWrap.getBoundingClientRect();
+      var cs = getComputedStyle(page);
+      var padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      var padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + 8;
+      var aw = r.width - padX, ah = r.height - padY;
+      var ar = SC.width / SC.height;
+      var w = aw, h = w / ar;
+      if (h > ah) { h = ah; w = h * ar; }
+      w = Math.max(80, Math.floor(w)); h = Math.round(w / ar);
+      sceneBox.style.width = w + "px"; sceneBox.style.height = h + "px";
+      var nd = Math.min(window.devicePixelRatio || 1, 3);
+      if (w !== cssW || h !== cssH || nd !== dpr) {
+        cssW = w; cssH = h; dpr = nd;
+        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+        render();
+      }
+      layoutPending();
+    }
+    var ro = new ResizeObserver(function () { fit(); });
+    ro.observe(stageWrap);
+    window.addEventListener("resize", fit);
+    function sc() { return cssW / SC.width; }  // css px per scene unit
+
+    /* ---------------- sheet ---------------- */
+    var slots = new Map();
+    function buildSheet() {
+      grid.innerHTML = "";
+      AN.forEach(function (a, idx) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "slot"; b.id = "slot-" + a.id; b.dataset.id = a.id;
+        b.style.setProperty("--s", Math.max(0.4, Math.min(1.6, a.scale || 1)) / 1.6);
+        b.title = a.name;
+        var img = document.createElement("img");
+        img.alt = ""; img.draggable = false; img.src = a.src;
+        img.onerror = function () { var f = document.createElement("span"); f.className = "fallback"; f.textContent = a.name; img.replaceWith(f); };
+        b.appendChild(img);
+        grid.appendChild(b);
+        slots.set(a.id, b);
+      });
+      refreshSlots();
+    }
+    function refreshSlots() {
+      slots.forEach(function (b, id) {
+        var used = isUsed(id), taken = !!(pending && pending.a.id === id);
+        b.classList.toggle("used", used);
+        b.classList.toggle("taken", taken);
+        b.setAttribute("aria-disabled", used || taken ? "true" : "false");
+        var a = byId.get(id);
+        b.setAttribute("aria-label", a.name + (used ? " (déjà posée)" : taken ? " (en cours)" : " — placer sur la page"));
+      });
+      var n = placements.length;
+      counter.textContent = n + " / " + TOTAL + (n > 1 ? " décalcos posées" : " décalco posée");
+      var left = TOTAL - n;
+      sheetLeft.textContent = left > 0 ? (left > 1 ? left + " restantes" : "1 restante") : "vide !";
+      doneBadge.hidden = n < TOTAL;
+    }
+
+    /* ---------------- UI mode ---------------- */
+    function updateUI() {
+      var m = pending ? pending.mode : "idle";
+      actsAdjust.hidden = m !== "adjust";
+      actsRub.hidden = m !== "rub";
+      film.classList.toggle("rubmode", m === "rub");
+      sceneBox.classList.toggle("rubbing", m === "rub");
+      if (m !== "rub") rubber.classList.remove("on", "active");
+      $("btnAuto").disabled = autoRunning;
+      $("btnAdjust").disabled = autoRunning;
+      var msg;
+      if (placements.length >= TOTAL) msg = "<b>Page terminée !</b> Toutes les décalcos ont trouvé leur place.";
+      else if (m === "idle") msg = "Glisse une décalco de la planche jusqu'à la page (ou touche-la).";
+      else if (m === "drag") msg = "Lâche-la sur la page…";
+      else if (m === "adjust") msg = "Place-la, change sa taille (pince ou rond orange), puis <b>Frotter</b>.";
+      else if (m === "rub") msg = "<b>Frotte</b> d'avant en arrière dessus ! Une fois posée, c'est pour toujours.";
+      else msg = "Et voilà, elle est posée !";
+      hint.innerHTML = msg;
+      updateMeter();
+    }
+    function updateMeter() {
+      var p = pending ? Math.min(1, pending.progress) : 0;
+      meterFill.style.width = Math.round(p * 100) + "%";
+      meterText.textContent = Math.round(p * 100) + " %";
+    }
+
+    /* ---------------- pending sticker ---------------- */
+    function newPending(a, x, y) {
+      var asp = aspectOf(a);
+      var h = Math.max(MIN_H, Math.min(MAX_H, (a.scale || 1) * DEFAULT_H)) * SC.height;
+      // keep very wide stickers from becoming huge
+      if (h * asp > SC.width * 0.6) h = (SC.width * 0.6) / asp;
+      var mw = 200, mh = Math.max(24, Math.min(600, Math.round(mw / asp)));
+      var mask = document.createElement("canvas"); mask.width = mw; mask.height = mh;
+      pending = { a: a, x: x, y: y, h: h, flip: false, mode: "drag", progress: 0, mask: mask };
+      filmImg.src = a.src;
+      film.classList.remove("settle", "leaving", "lifting");
+      film.hidden = false;
+      inkSize = "";
+      layoutPending();
+      refreshSlots();
+    }
+    var inkSize = "";
+    function layoutPending() {
+      if (!pending) return;
+      var s = sc(), H = pending.h * s, W = H * aspectOf(pending.a);
+      var m = Math.max(6, Math.min(18, H * 0.08));
+      film.style.setProperty("--m", m + "px");
+      film.style.setProperty("--fx", pending.flip ? -1 : 1);
+      film.style.left = (pending.x * s - W / 2 - m) + "px";
+      film.style.top = (pending.y * s - H / 2 - m) + "px";
+      film.style.width = (W + 2 * m) + "px";
+      film.style.height = (H + 2 * m) + "px";
+      var f = Math.min(dpr, 1200 / Math.max(W, H, 1));
+      var iw = Math.max(1, Math.round(W * f)), ih = Math.max(1, Math.round(H * f));
+      if (inkSize !== iw + "x" + ih) { inkSize = iw + "x" + ih; ink.width = iw; ink.height = ih; drawInk(); }
+    }
+    function drawInk() {
+      if (!pending) return;
+      var x = ink.getContext("2d"), img = images.get(pending.a.id);
+      x.globalCompositeOperation = "source-over";
+      x.clearRect(0, 0, ink.width, ink.height);
+      if (!imgReady(img)) return;
+      x.drawImage(pending.mask, 0, 0, ink.width, ink.height);
+      x.globalCompositeOperation = "source-in";
+      x.drawImage(img, 0, 0, ink.width, ink.height);
+      x.globalCompositeOperation = "source-over";
+    }
+    var inkQueued = false;
+    function scheduleInk() {
+      if (inkQueued) return; inkQueued = true;
+      requestAnimationFrame(function () { inkQueued = false; drawInk(); updateMeter(); });
+    }
+    function clampPending() {
+      pending.h = Math.max(MIN_H * SC.height, Math.min(MAX_H * SC.height, pending.h));
+      var asp = aspectOf(pending.a);
+      if (pending.h * asp > SC.width * 0.9) pending.h = (SC.width * 0.9) / asp;
+      pending.x = Math.max(0, Math.min(SC.width, pending.x));
+      pending.y = Math.max(0, Math.min(SC.height, pending.y));
+    }
+    function hidePending(animate, cb) {
+      var finish = function () { film.hidden = true; film.classList.remove("leaving", "settle", "lifting"); if (cb) cb(); };
+      if (animate && !mqReduce.matches) { film.classList.add("leaving"); setTimeout(finish, 230); }
+      else finish();
+    }
+    function returnPending(animate) {
+      if (!pending || autoRunning) return;
+      pending = null;
+      hidePending(animate);
+      refreshSlots(); updateUI();
+    }
+    function setMode(m) {
+      if (!pending) return;
+      pending.mode = m;
+      updateUI();
+    }
+    function placeAtCentre(a, viaKeyboard) {
+      if (!a || sheetBusy() || isUsed(a.id)) return;
+      if (pending) returnPending(false);
+      newPending(a, SC.width / 2, SC.height * 0.6);
+      clampPending(); layoutPending();
+      setMode("adjust");
+      if (viaKeyboard) film.focus({ preventScroll: true });
+    }
+
+    /* ---------------- rubbing ---------------- */
+    function clientToLocal(cx, cy) {
+      var r = art.getBoundingClientRect();
+      var u = (cx - r.left) / r.width, v = (cy - r.top) / r.height;
+      if (pending.flip) u = 1 - u;
+      return { u: u, v: v, w: r.width, h: r.height };
+    }
+    function paintRub(u0, v0, u1, v1) {
+      var m = pending.mask, x = m.getContext("2d"), W = m.width, H = m.height;
+      var lw = Math.max(W, H) * 0.24;
+      x.lineCap = "round"; x.lineJoin = "round";
+      x.strokeStyle = "rgba(0,0,0,.4)"; x.lineWidth = lw;
+      x.beginPath(); x.moveTo(u0 * W, v0 * H); x.lineTo(u1 * W + 0.01, v1 * H); x.stroke();
+      // scratchy streaks, like a pencil rubbing through the film
+      x.lineWidth = Math.max(1, lw * 0.06); x.strokeStyle = "rgba(0,0,0,.55)";
+      for (var i = 0; i < 5; i++) {
+        var ox = (Math.random() - 0.5) * lw * 1.1, oy = (Math.random() - 0.5) * lw * 1.1;
+        x.beginPath(); x.moveTo(u0 * W + ox, v0 * H + oy); x.lineTo(u1 * W + ox, v1 * H + oy); x.stroke();
+      }
+    }
+    function rubStep(p0, p1, travel) {
+      // p0,p1 local {u,v}; travel = normalised distance (in sticker sizes)
+      var inside = function (p) { return p.u > -0.1 && p.u < 1.1 && p.v > -0.1 && p.v < 1.1; };
+      if (!inside(p0) || !inside(p1)) return;
+      paintRub(p0.u, p0.v, p1.u, p1.v);
+      pending.progress += Math.min(0.5, travel) / RUB_TRAVEL;
+      scheduleInk();
+      if (pending.progress >= 1) completeRub();
+    }
+    function completeRub() {
+      if (!pending || pending.mode === "settling") return;
+      var P = pending;
+      P.progress = 1;
+      var x = P.mask.getContext("2d");
+      x.fillStyle = "#000"; x.fillRect(0, 0, P.mask.width, P.mask.height);
+      drawInk();
+      gesture = null; pointers.clear();
+      rubber.classList.remove("on", "active");
+      setMode("settling");
+      film.classList.add("settle");
+      setTimeout(function () {
+        placements.push({ id: P.a.id, x: P.x, y: P.y, h: P.h, flip: P.flip });
+        save();
+        render();
+        pending = null;
+        film.hidden = true; film.classList.remove("settle");
+        refreshSlots(); updateUI();
+        if (placements.length >= TOTAL) celebrate();
+      }, mqReduce.matches ? 60 : 620);
+    }
+    function autoRub() {
+      if (!pending || pending.mode !== "rub" || autoRunning) return;
+      autoRunning = true; updateUI();
+      var D = mqReduce.matches ? 500 : 2300, t0 = performance.now(), start = pending.progress;
+      var last = null;
+      rubber.classList.add("on", "active");
+      function step() {
+        var now = performance.now();
+        if (!pending || pending.mode !== "rub") { autoRunning = false; rubber.classList.remove("on", "active"); updateUI(); return; }
+        var t = Math.max(0, Math.min(1, (now - t0) / D));
+        var u = 0.5 + 0.55 * Math.sin(t * Math.PI * 2 * 7);
+        var v = 0.12 + 0.76 * (0.5 - 0.5 * Math.cos(t * Math.PI * 3));
+        var p = { u: u, v: v };
+        if (last) { paintRub(last.u, last.v, u, v); }
+        last = p;
+        pending.progress = start + (1 - start) * t;
+        scheduleInk();
+        // show the coin
+        var r = art.getBoundingClientRect(), b = sceneBox.getBoundingClientRect();
+        var uu = pending.flip ? 1 - u : u;
+        rubber.style.left = (r.left - b.left + uu * r.width) + "px";
+        rubber.style.top = (r.top - b.top + v * r.height) + "px";
+        if (t < 1) setTimeout(step, 16);
+        else { autoRunning = false; completeRub(); }
+      }
+      setTimeout(step, 16);   // timer rather than rAF: keeps going even if frames are throttled
+    }
+
+    /* ---------------- drag from the sheet ---------------- */
+    var press = null, suppressClick = false;
+    function towardScene(dx, dy) {
+      return mqWide.matches ? (dx < 0 && Math.abs(dx) > Math.abs(dy) * 1.2) : (dy < 0 && Math.abs(dy) > Math.abs(dx) * 1.2);
+    }
+    function dragTarget(cx, cy, type) {
+      var b = sceneBox.getBoundingClientRect(), s = sc();
+      var H = pending.h * s;
+      var lift = type === "mouse" ? 0 : H * 0.5 + 26;   // keep it visible above the finger
+      pending.x = (cx - b.left) / s;
+      pending.y = (cy - lift - b.top) / s;
+      layoutPending();
+    }
+    function beginDrag() {
+      if (!press || press.started) return;
+      clearTimeout(press.timer);
+      press.started = true; suppressClick = true;
+      if (pending) returnPending(false);
+      var a = byId.get(press.id);
+      newPending(a, 0, 0);
+      film.classList.add("lifting");
+      dragTarget(press.x, press.y, press.type);
+      setMode("drag");
+      try { press.slot.setPointerCapture(press.pid); } catch (e) {}
+    }
+    function endDrag(cancelled) {
+      var p = press; press = null;
+      if (!p || !p.started || !pending) return;
+      film.classList.remove("lifting");
+      var inScene = pending.x > -SC.width * 0.02 && pending.x < SC.width * 1.02 && pending.y > -SC.height * 0.02 && pending.y < SC.height * 1.02;
+      if (cancelled || !inScene) { returnPending(true); return; }
+      clampPending(); layoutPending();
+      setMode("adjust");
+    }
+    function sheetBusy() { return autoRunning || !!(pending && pending.mode === "settling"); }
+
+    grid.addEventListener("pointerdown", function (e) {
+      var slot = e.target.closest(".slot");
+      if (!slot || slot.classList.contains("used") || slot.classList.contains("taken") || sheetBusy()) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (press) return;
+      suppressClick = false;
+      if (e.pointerType === "mouse") e.preventDefault();
+      press = { id: slot.dataset.id, slot: slot, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, started: false, timer: 0 };
+      if (e.pointerType !== "mouse") press.timer = setTimeout(beginDrag, 170);
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!press || e.pointerId !== press.pid) return;
+      press.x = e.clientX; press.y = e.clientY;
+      if (!press.started) {
+        var dx = e.clientX - press.x0, dy = e.clientY - press.y0, d = Math.hypot(dx, dy);
+        if (press.type === "mouse") { if (d > 5) beginDrag(); }
+        else if (d > 9) {
+          if (towardScene(dx, dy)) beginDrag();
+          else { clearTimeout(press.timer); press = null; }   // it's a scroll
+        }
+        return;
+      }
+      dragTarget(e.clientX, e.clientY, press.type);
+    });
+    window.addEventListener("pointerup", function (e) {
+      if (!press || e.pointerId !== press.pid) return;
+      clearTimeout(press.timer);
+      if (press.started) endDrag(false); else press = null;
+    });
+    window.addEventListener("pointercancel", function (e) {
+      if (!press || e.pointerId !== press.pid) return;
+      clearTimeout(press.timer);
+      if (press.started) endDrag(true); else press = null;
+    });
+    // stop the sheet / page from scrolling once a drag or gesture is active
+    document.addEventListener("touchmove", function (e) {
+      if ((press && press.started) || gesture) e.preventDefault();
+    }, { passive: false });
+    grid.addEventListener("click", function (e) {
+      var slot = e.target.closest(".slot");
+      if (!slot) return;
+      if (suppressClick) { suppressClick = false; return; }
+      if (slot.classList.contains("used") || slot.classList.contains("taken") || sheetBusy()) return;
+      placeAtCentre(byId.get(slot.dataset.id), e.detail === 0);
+    });
+    grid.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+    /* ---------------- gestures on the page ---------------- */
+    var pointers = new Map(), gesture = null;
+    function pt(e) { return { x: e.clientX, y: e.clientY }; }
+    sceneBox.addEventListener("pointerdown", function (e) {
+      if (!pending || autoRunning) return;
+      var m = pending.mode;
+      if (m !== "adjust" && m !== "rub") return;
+      pointers.set(e.pointerId, pt(e));
+      try { sceneBox.setPointerCapture(e.pointerId); } catch (er) {}
+      if (m === "adjust") {
+        if (pointers.size === 2) {
+          var ps = Array.from(pointers.values());
+          gesture = { type: "pinch", d0: Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) || 1, h0: pending.h,
+            mx: (ps[0].x + ps[1].x) / 2, my: (ps[0].y + ps[1].y) / 2, x0: pending.x, y0: pending.y };
+        } else if (pointers.size === 1) {
+          if (e.target === handle) {
+            var r = film.getBoundingClientRect();
+            var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            gesture = { type: "handle", cx: cx, cy: cy, d0: Math.hypot(e.clientX - cx, e.clientY - cy) || 1, h0: pending.h };
+          } else if (film.contains(e.target)) {
+            gesture = { type: "move", sx: e.clientX, sy: e.clientY, x0: pending.x, y0: pending.y };
+            film.classList.add("lifting");
+          } else gesture = null;
+        }
+        if (gesture) e.preventDefault();
+      } else if (m === "rub" && pointers.size === 1) {
+        gesture = { type: "rub", last: clientToLocal(e.clientX, e.clientY), lx: e.clientX, ly: e.clientY };
+        rubber.classList.add("on", "active");
+        moveRubber(e);
+        e.preventDefault();
+      }
+    });
+    function moveRubber(e) {
+      var b = sceneBox.getBoundingClientRect();
+      rubber.style.left = (e.clientX - b.left) + "px";
+      rubber.style.top = (e.clientY - b.top) + "px";
+    }
+    sceneBox.addEventListener("pointermove", function (e) {
+      if (pending && pending.mode === "rub" && !autoRunning) {
+        moveRubber(e);
+        if (e.pointerType === "mouse") rubber.classList.add("on");
+      }
+      if (!pointers.has(e.pointerId) || !pending) return;
+      pointers.set(e.pointerId, pt(e));
+      if (!gesture) return;
+      var s = sc();
+      if (gesture.type === "move") {
+        pending.x = gesture.x0 + (e.clientX - gesture.sx) / s;
+        pending.y = gesture.y0 + (e.clientY - gesture.sy) / s;
+        clampPending(); layoutPending();
+      } else if (gesture.type === "handle") {
+        var d = Math.hypot(e.clientX - gesture.cx, e.clientY - gesture.cy);
+        pending.h = gesture.h0 * d / gesture.d0;
+        clampPending(); layoutPending();
+      } else if (gesture.type === "pinch" && pointers.size >= 2) {
+        var ps = Array.from(pointers.values());
+        var d2 = Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y);
+        var mx = (ps[0].x + ps[1].x) / 2, my = (ps[0].y + ps[1].y) / 2;
+        pending.h = gesture.h0 * d2 / gesture.d0;
+        pending.x = gesture.x0 + (mx - gesture.mx) / s;
+        pending.y = gesture.y0 + (my - gesture.my) / s;
+        clampPending(); layoutPending();
+      } else if (gesture.type === "rub") {
+        var cur = clientToLocal(e.clientX, e.clientY);
+        var travel = Math.hypot(e.clientX - gesture.lx, e.clientY - gesture.ly) / ((cur.w + cur.h) / 2 || 1);
+        var prev = gesture.last;
+        gesture.last = cur; gesture.lx = e.clientX; gesture.ly = e.clientY;
+        rubStep(prev, cur, travel);
+      }
+    });
+    function endPointer(e) {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.delete(e.pointerId);
+      if (gesture && gesture.type === "pinch" && pointers.size === 1) {
+        var p = Array.from(pointers.values())[0];
+        gesture = { type: "move", sx: p.x, sy: p.y, x0: pending.x, y0: pending.y };
+        return;
+      }
+      if (pointers.size === 0) {
+        gesture = null;
+        film.classList.remove("lifting");
+        rubber.classList.remove("active");
+        if (e.pointerType !== "mouse") rubber.classList.remove("on");
+      }
+    }
+    sceneBox.addEventListener("pointerup", endPointer);
+    sceneBox.addEventListener("pointercancel", endPointer);
+    sceneBox.addEventListener("pointerleave", function (e) {
+      if (e.pointerType === "mouse" && !pointers.size) rubber.classList.remove("on");
+    });
+    sceneBox.addEventListener("wheel", function (e) {
+      if (!pending || pending.mode !== "adjust") return;
+      e.preventDefault();
+      pending.h *= Math.exp(-e.deltaY * 0.0015);
+      clampPending(); layoutPending();
+    }, { passive: false });
+
+    /* ---------------- buttons ---------------- */
+    function resize(f) { if (!pending || pending.mode !== "adjust") return; pending.h *= f; clampPending(); layoutPending(); }
+    $("btnBigger").addEventListener("click", function () { resize(1.15); });
+    $("btnSmaller").addEventListener("click", function () { resize(1 / 1.15); });
+    $("btnFlip").addEventListener("click", function () {
+      if (!pending || pending.mode !== "adjust") return;
+      pending.flip = !pending.flip; layoutPending();
+    });
+    $("btnCancel").addEventListener("click", function () { returnPending(true); });
+    $("btnRub").addEventListener("click", function () { setMode("rub"); });
+    $("btnAdjust").addEventListener("click", function () { if (!autoRunning) setMode("adjust"); });
+    $("btnAuto").addEventListener("click", autoRub);
+
+    film.addEventListener("keydown", function (e) {
+      if (!pending || pending.mode !== "adjust") return;
+      var step = (e.shiftKey ? 0.05 : 0.01) * SC.width, used = true;
+      if (e.key === "ArrowLeft") pending.x -= step;
+      else if (e.key === "ArrowRight") pending.x += step;
+      else if (e.key === "ArrowUp") pending.y -= step;
+      else if (e.key === "ArrowDown") pending.y += step;
+      else if (e.key === "+" || e.key === "=") pending.h *= 1.1;
+      else if (e.key === "-" || e.key === "_") pending.h /= 1.1;
+      else used = false;
+      if (used) { e.preventDefault(); clampPending(); layoutPending(); }
+    });
+
+    /* ---------------- dialogs ---------------- */
+    var lastFocus = null;
+    function openModal(el, focusId) {
+      lastFocus = document.activeElement;
+      el.hidden = false;
+      $(focusId).focus();
+    }
+    function closeModal(el) {
+      el.hidden = true;
+      if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
+    }
+    [$("confirmNew"), $("doneModal")].forEach(function (m) {
+      m.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") { closeModal(m); return; }
+        if (e.key === "Tab") {  // tiny focus trap
+          var bs = m.querySelectorAll("button"), first = bs[0], last = bs[bs.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      });
+      m.addEventListener("click", function (e) { if (e.target === m) closeModal(m); });
+    });
+    $("btnNew").addEventListener("click", function () { openModal($("confirmNew"), "btnNewNo"); });
+    $("btnNewNo").addEventListener("click", function () { closeModal($("confirmNew")); });
+    $("btnNewYes").addEventListener("click", function () { closeModal($("confirmNew")); newPage(); });
+    $("btnDoneOk").addEventListener("click", function () { closeModal($("doneModal")); });
+    $("btnDoneNew").addEventListener("click", function () { closeModal($("doneModal")); openModal($("confirmNew"), "btnNewNo"); });
+
+    function newPage() {
+      autoRunning = false;
+      if (pending) { pending = null; hidePending(false); }
+      placements = [];
+      save(); render(); refreshSlots(); updateUI();
+      grid.scrollTo({ left: 0, top: 0 });
+    }
+    function celebrate() {
+      if (!mqReduce.matches) {
+        var c = document.createElement("div"); c.className = "confetti"; c.setAttribute("aria-hidden", "true");
+        var bits = ["★", "✦", "🦁", "🦒", "🐘", "✿", "★", "🦓"];
+        for (var i = 0; i < 26; i++) {
+          var sp = document.createElement("span");
+          sp.textContent = bits[i % bits.length];
+          sp.style.left = (Math.random() * 100) + "%";
+          sp.style.animationDelay = (Math.random() * 0.8) + "s";
+          sp.style.color = ["#e2702a", "#f6b13d", "#4f7d2c", "#1d6fd6"][i % 4];
+          c.appendChild(sp);
+        }
+        document.body.appendChild(c);
+        setTimeout(function () { c.remove(); }, 3500);
+      }
+      setTimeout(function () { openModal($("doneModal"), "btnDoneOk"); }, mqReduce.matches ? 0 : 500);
+    }
+
+    /* ---------------- go ---------------- */
+    load();
+    buildSheet();
+    updateUI();
+    fit();
+    // test hook (harmless): window.__decalco for automated checks
+    window.__decalco = { state: function () { return { placements: placements.slice(), pending: pending && { id: pending.a.id, mode: pending.mode, progress: pending.progress } }; },
+      place: function (id) { placeAtCentre(byId.get(id)); }, rub: function () { setMode("rub"); autoRub(); } };
+  }
+})();
+</script>
+</html>
