@@ -166,6 +166,18 @@ button{font:inherit;color:inherit}
 .film.settle::before{animation:peel .6s ease-in forwards}
 .film.settle .art img{opacity:0;transition:opacity .3s}
 .film.leaving{transition:opacity .22s ease,transform .22s ease;opacity:0;transform:scale(.7)}
+/* peeling a sticker back off the page: a corner lifts, the ink fades back onto the film */
+.film.peeling{animation:lift .55s cubic-bezier(.3,.7,.4,1) both;transform-origin:15% 85%}
+.film.peeling .handle{display:none}
+.film.unstick .art canvas{animation:inkfade .5s ease-in forwards}
+.film.unstick::before{animation:filmin .45s ease-out both}
+@keyframes lift{0%{transform:none;filter:none}
+  45%{transform:perspective(600px) rotateX(14deg) rotateY(-16deg) translate(4px,-8px) scale(1.04);filter:drop-shadow(0 14px 14px rgba(0,0,0,.3))}
+  100%{transform:none;filter:none}}
+@keyframes inkfade{0%,30%{opacity:1}100%{opacity:0}}
+@keyframes filmin{from{opacity:0}to{opacity:1}}
+.scene-box.can-grab{cursor:grab}
+.scene-box.grabbing{cursor:grabbing}
 @keyframes press{0%{transform:scale(1.06)}55%{transform:scale(.98)}100%{transform:scale(1)}}
 @keyframes peel{0%{transform:none;opacity:1}100%{transform:translate(18px,-26px) rotate(5deg);opacity:0}}
 
@@ -323,6 +335,13 @@ button{font:inherit;color:inherit}
         <button class="btn" id="btnAdjust" type="button">✥ Ajuster</button>
         <button class="btn primary" id="btnAuto" type="button">✨ Frotter pour moi</button>
       </div>
+      <div class="actions" id="actsSel" hidden role="group" aria-label="Décalco choisie">
+        <button class="btn primary" id="btnPeel" type="button">✋ Décoller</button>
+        <button class="btn" id="btnFront" type="button" aria-label="Passer devant">⬆ Devant</button>
+        <button class="btn" id="btnBack" type="button" aria-label="Passer derrière">⬇ Derrière</button>
+        <button class="btn" id="btnUnplace" type="button" aria-label="Remettre sur la planche">↩<span class="long"> Remettre sur la</span> planche</button>
+        <button class="btn icon" id="btnDeselect" type="button" aria-label="Fini, ne plus choisir cette décalco">✓</button>
+      </div>
     </div>
 
     <aside class="sheet" id="sheet" aria-label="La planche de décalcomanies">
@@ -388,12 +407,14 @@ button{font:inherit;color:inherit}
     var stageWrap = $("stageWrap"), page = $("page"), sceneBox = $("sceneBox"), canvas = $("scene");
     var film = $("film"), art = $("art"), filmImg = $("filmImg"), ink = $("ink"), handle = $("handle"), rubber = $("rubber");
     var grid = $("sheetGrid"), counter = $("counter"), hint = $("hint"), sheetLeft = $("sheetLeft"), doneBadge = $("doneBadge");
-    var actsAdjust = $("actsAdjust"), actsRub = $("actsRub"), meterFill = $("meterFill"), meterText = $("meterText");
+    var actsAdjust = $("actsAdjust"), actsRub = $("actsRub"), actsSel = $("actsSel"), meterFill = $("meterFill"), meterText = $("meterText");
 
     /* ---------------- state ---------------- */
-    var placements = [];   // {id,x,y,h,flip} in scene units (x,y = centre)
-    var pending = null;    // {a,x,y,h,flip,mode:'drag'|'adjust'|'rub'|'settling',progress,mask}
+    var placements = [];   // {id,x,y,h,flip} in scene units (x,y = centre); array order = layer order (last = front)
+    var pending = null;    // {a,x,y,h,flip,mode:'drag'|'adjust'|'rub'|'peeling'|'settling',progress,mask,layer,peeled}
     var autoRunning = false;
+    var selected = null;   // a placement (object in `placements`) chosen on the page, while no film is out
+    var selNote = "";      // short feedback shown in the hint for the selection
 
     function load() {
       try {
@@ -506,7 +527,74 @@ button{font:inherit;color:inherit}
       else { ctx.fillStyle = "#e9d7b0"; ctx.fillRect(0, 0, W, H); }
       var k = W / SC.width;
       placements.forEach(function (p) { drawPrinted(ctx, p, k); });
+      if (selected && placements.indexOf(selected) >= 0) drawSelection(ctx, selected, k);
     }
+    function drawSelection(ctx, p, k) {
+      var a = byId.get(p.id); if (!a) return;
+      var h = p.h * k, w = h * aspectOf(a), pad = 6 * dpr;
+      var x = p.x * k - w / 2 - pad, y = p.y * k - h / 2 - pad;
+      ctx.save();
+      ctx.lineJoin = "round";
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 6 * dpr;
+      ctx.strokeRect(x, y, w + 2 * pad, h + 2 * pad);
+      ctx.setLineDash([9 * dpr, 6 * dpr]);
+      ctx.strokeStyle = "#e2702a"; ctx.lineWidth = 3 * dpr;
+      ctx.strokeRect(x, y, w + 2 * pad, h + 2 * pad);
+      ctx.restore();
+    }
+
+    /* ---------------- picking placed stickers ---------------- */
+    var alphaMaps = new Map();   // id -> {w,h,data} | false (can't read pixels: use the rectangle)
+    function alphaOf(a) {
+      if (alphaMaps.has(a.id)) return alphaMaps.get(a.id);
+      var img = images.get(a.id);
+      if (!imgReady(img)) return false;
+      var f = 64 / Math.max(img.naturalWidth, img.naturalHeight);
+      var w = Math.max(1, Math.round(img.naturalWidth * f)), h = Math.max(1, Math.round(img.naturalHeight * f));
+      var res = false;
+      try {
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        var x = c.getContext("2d");
+        x.drawImage(img, 0, 0, w, h);
+        var d = x.getImageData(0, 0, w, h).data, al = new Uint8Array(w * h);
+        for (var i = 0; i < al.length; i++) al[i] = d[i * 4 + 3];
+        res = { w: w, h: h, data: al };
+      } catch (e) { res = false; }   // e.g. file:// images taint the canvas
+      alphaMaps.set(a.id, res);
+      return res;
+    }
+    function solidAt(a, u, v, r) {
+      var m = alphaOf(a);
+      if (!m) return true;
+      var cx = Math.floor(u * m.w), cy = Math.floor(v * m.h);
+      for (var dy = -r; dy <= r; dy++) for (var dx = -r; dx <= r; dx++) {
+        var xx = cx + dx, yy = cy + dy;
+        if (xx >= 0 && yy >= 0 && xx < m.w && yy < m.h && m.data[yy * m.w + xx] > 40) return true;
+      }
+      return false;
+    }
+    function hitTest(cx, cy, type) {
+      var b = sceneBox.getBoundingClientRect(), s = sc();
+      if (!s) return null;
+      var sx = (cx - b.left) / s, sy = (cy - b.top) / s;
+      var r = type === "mouse" ? 1 : 2;   // a little extra reach for fingers
+      for (var i = placements.length - 1; i >= 0; i--) {
+        var p = placements[i], a = byId.get(p.id);
+        if (!a) continue;
+        var h = p.h, w = h * aspectOf(a), dx = sx - p.x;
+        if (p.flip) dx = -dx;
+        var u = dx / w + 0.5, v = (sy - p.y) / h + 0.5;
+        if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+        if (solidAt(a, u, v, r)) return p;
+      }
+      return null;
+    }
+    function boxOf(p) {
+      var a = byId.get(p.id), w = p.h * aspectOf(a);
+      return { l: p.x - w / 2, r: p.x + w / 2, t: p.y - p.h / 2, b: p.y + p.h / 2 };
+    }
+    function overlaps(A, B) { return A.l < B.r && B.l < A.r && A.t < B.b && B.t < A.b; }
     function drawPrinted(ctx, p, k) {
       var a = byId.get(p.id); if (!a) return;
       var pc = printedOf(a); if (!pc) return;
@@ -593,17 +681,30 @@ button{font:inherit;color:inherit}
       var m = pending ? pending.mode : "idle";
       actsAdjust.hidden = m !== "adjust";
       actsRub.hidden = m !== "rub";
+      var sel = m === "idle" && selected && placements.indexOf(selected) >= 0;
+      if (!sel && selected) { selected = null; scheduleRender(); }
+      if (!sel) selNote = "";
+      actsSel.hidden = !sel;
+      if (sel) {
+        var si = placements.indexOf(selected);
+        $("btnFront").disabled = si === placements.length - 1;
+        $("btnBack").disabled = si === 0;
+      }
       film.classList.toggle("rubmode", m === "rub");
       sceneBox.classList.toggle("rubbing", m === "rub");
       if (m !== "rub") rubber.classList.remove("on", "active");
       $("btnAuto").disabled = autoRunning;
       $("btnAdjust").disabled = autoRunning;
       var msg;
-      if (placements.length >= TOTAL) msg = "<b>Page terminée !</b> Toutes les décalcos ont trouvé leur place.";
+      if (sel) msg = selNote || ("<b>" + byId.get(selected.id).name + "</b> : <b>Décolle</b>-la pour la bouger, ou passe-la devant / derrière.");
+      else if (m === "idle" && placements.length >= TOTAL) msg = "<b>Page terminée !</b> Touche une décalco pour la décoller ou la bouger.";
+      else if (m === "idle" && placements.length) msg = "Glisse une décalco de la planche jusqu'à la page. Touche une décalco posée pour la décoller.";
       else if (m === "idle") msg = "Glisse une décalco de la planche jusqu'à la page (ou touche-la).";
       else if (m === "drag") msg = "Lâche-la sur la page…";
+      else if (m === "peeling") msg = "Hop… on la décolle tout doucement.";
+      else if (m === "adjust" && pending.peeled) msg = "Décollée ! Bouge-la, change sa taille, puis <b>Frotter</b> pour la recoller.";
       else if (m === "adjust") msg = "Place-la, change sa taille (pince ou rond orange), puis <b>Frotter</b>.";
-      else if (m === "rub") msg = "<b>Frotte</b> d'avant en arrière dessus ! Une fois posée, c'est pour toujours.";
+      else if (m === "rub") msg = "<b>Frotte</b> d'avant en arrière dessus ! Tu pourras la décoller plus tard.";
       else msg = "Et voilà, elle est posée !";
       hint.innerHTML = msg;
       updateMeter();
@@ -622,9 +723,11 @@ button{font:inherit;color:inherit}
       if (h * asp > SC.width * 0.6) h = (SC.width * 0.6) / asp;
       var mw = 200, mh = Math.max(24, Math.min(600, Math.round(mw / asp)));
       var mask = document.createElement("canvas"); mask.width = mw; mask.height = mh;
-      pending = { a: a, x: x, y: y, h: h, flip: false, mode: "drag", progress: 0, mask: mask };
+      pending = { a: a, x: x, y: y, h: h, flip: false, mode: "drag", progress: 0, mask: mask, layer: null, peeled: false };
+      selected = null; selNote = "";
+      sceneBox.classList.remove("can-grab", "grabbing");
       filmImg.src = a.src;
-      film.classList.remove("settle", "leaving", "lifting");
+      film.classList.remove("settle", "leaving", "lifting", "peeling", "unstick");
       film.hidden = false;
       inkSize = "";
       layoutPending();
@@ -669,14 +772,16 @@ button{font:inherit;color:inherit}
       pending.y = Math.max(0, Math.min(SC.height, pending.y));
     }
     function hidePending(animate, cb) {
-      var finish = function () { film.hidden = true; film.classList.remove("leaving", "settle", "lifting"); if (cb) cb(); };
+      var finish = function () { film.hidden = true; film.classList.remove("leaving", "settle", "lifting", "peeling", "unstick"); if (cb) cb(); };
       if (animate && !mqReduce.matches) { film.classList.add("leaving"); setTimeout(finish, 230); }
       else finish();
     }
     function returnPending(animate) {
-      if (!pending || autoRunning) return;
+      if (!pending || autoRunning || pending.mode === "peeling" || pending.mode === "settling") return;
+      var wasPeeled = pending.peeled;
       pending = null;
       hidePending(animate);
+      if (wasPeeled) save();   // it was taken off the page: now it's back on the sheet for good
       refreshSlots(); updateUI();
     }
     function setMode(m) {
@@ -691,6 +796,72 @@ button{font:inherit;color:inherit}
       clampPending(); layoutPending();
       setMode("adjust");
       if (viaKeyboard) film.focus({ preventScroll: true });
+    }
+
+    /* ---------------- placed stickers: select, peel, layers ---------------- */
+    function select(p) {
+      if (pending) return;
+      selected = p; selNote = "";
+      render(); updateUI();
+    }
+    function deselect() {
+      if (!selected) return;
+      selected = null; selNote = "";
+      render(); updateUI();
+    }
+    // Lift a placed sticker back onto its film, same spot / size / side, keeping its layer.
+    // dragging: the finger/mouse is already moving it, so skip the slow lift.
+    function peel(p, dragging) {
+      var i = placements.indexOf(p);
+      if (i < 0 || pending || autoRunning) return false;
+      var a = byId.get(p.id);
+      placements.splice(i, 1);   // not saved yet: a reload before re-rubbing keeps it on the page
+      selected = null; selNote = "";
+      render();
+      newPending(a, p.x, p.y);
+      pending.h = p.h; pending.flip = !!p.flip; pending.layer = i; pending.peeled = true;
+      clampPending();
+      // start with the ink fully on, then let it fade back onto the film
+      var P = pending, mx = P.mask.getContext("2d");
+      mx.fillStyle = "#000"; mx.fillRect(0, 0, P.mask.width, P.mask.height);
+      inkSize = ""; layoutPending(); drawInk();
+      void film.offsetWidth;   // restart the CSS animations
+      film.classList.add("unstick");
+      if (!dragging) film.classList.add("peeling");
+      setMode(dragging ? "adjust" : "peeling");
+      setTimeout(function () {
+        if (pending !== P) return;
+        mx.clearRect(0, 0, P.mask.width, P.mask.height);
+        drawInk();
+        film.classList.remove("peeling", "unstick");
+        if (P.mode === "peeling") setMode("adjust");
+      }, mqReduce.matches ? 60 : 560);
+      return true;
+    }
+    function moveLayer(dir) {
+      var i = placements.indexOf(selected);
+      if (i < 0) return;
+      var name = byId.get(selected.id).name, bb = boxOf(selected), j = -1, k;
+      // jump past the next sticker it actually touches, so every press shows a change
+      if (dir > 0) { for (k = i + 1; k < placements.length; k++) if (overlaps(bb, boxOf(placements[k]))) { j = k; break; } }
+      else { for (k = i - 1; k >= 0; k--) if (overlaps(bb, boxOf(placements[k]))) { j = k; break; } }
+      placements.splice(i, 1);
+      if (j < 0) { if (dir > 0) placements.push(selected); else placements.unshift(selected); }
+      else placements.splice(j, 0, selected);
+      save(); render();
+      var ni = placements.indexOf(selected);
+      selNote = "<b>" + name + "</b> passe " + (dir > 0 ? "devant" : "derrière") + " !" +
+        (ni === placements.length - 1 ? " (tout devant)" : ni === 0 ? " (tout derrière)" : "");
+      updateUI();
+    }
+    function unplace() {
+      var i = placements.indexOf(selected);
+      if (i < 0) return;
+      var name = byId.get(selected.id).name;
+      placements.splice(i, 1);
+      selected = null;
+      save(); render(); refreshSlots(); updateUI();
+      hint.innerHTML = "<b>" + name + "</b> est retournée sur la planche.";
     }
 
     /* ---------------- rubbing ---------------- */
@@ -734,13 +905,17 @@ button{font:inherit;color:inherit}
       setMode("settling");
       film.classList.add("settle");
       setTimeout(function () {
-        placements.push({ id: P.a.id, x: P.x, y: P.y, h: P.h, flip: P.flip });
+        if (pending !== P) return;   // page was cleared meanwhile
+        var np = { id: P.a.id, x: P.x, y: P.y, h: P.h, flip: P.flip };
+        // a peeled sticker goes back to its own layer; a new one goes on top
+        if (P.layer != null) placements.splice(Math.max(0, Math.min(P.layer, placements.length)), 0, np);
+        else placements.push(np);
         save();
         render();
         pending = null;
         film.hidden = true; film.classList.remove("settle");
         refreshSlots(); updateUI();
-        if (placements.length >= TOTAL) celebrate();
+        if (placements.length >= TOTAL && !P.peeled) celebrate();
       }, mqReduce.matches ? 60 : 620);
     }
     function autoRub() {
@@ -806,7 +981,7 @@ button{font:inherit;color:inherit}
       clampPending(); layoutPending();
       setMode("adjust");
     }
-    function sheetBusy() { return autoRunning || !!(pending && pending.mode === "settling"); }
+    function sheetBusy() { return autoRunning || !!(pending && (pending.mode === "settling" || pending.mode === "peeling")); }
 
     grid.addEventListener("pointerdown", function (e) {
       var slot = e.target.closest(".slot");
@@ -858,8 +1033,19 @@ button{font:inherit;color:inherit}
 
     /* ---------------- gestures on the page ---------------- */
     var pointers = new Map(), gesture = null;
+    var pick = null;   // finger/mouse down on a placed sticker: a tap selects it, a drag peels and moves it
     function pt(e) { return { x: e.clientX, y: e.clientY }; }
     sceneBox.addEventListener("pointerdown", function (e) {
+      if (!pending && !autoRunning) {
+        if (pick || (e.pointerType === "mouse" && e.button !== 0)) return;
+        var hit = hitTest(e.clientX, e.clientY, e.pointerType);
+        if (!hit) { deselect(); return; }
+        pick = { p: hit, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY };
+        if (e.pointerType === "mouse") sceneBox.classList.add("grabbing");
+        try { sceneBox.setPointerCapture(e.pointerId); } catch (er) {}
+        e.preventDefault();
+        return;
+      }
       if (!pending || autoRunning) return;
       var m = pending.mode;
       if (m !== "adjust" && m !== "rub") return;
@@ -894,6 +1080,26 @@ button{font:inherit;color:inherit}
       rubber.style.top = (e.clientY - b.top) + "px";
     }
     sceneBox.addEventListener("pointermove", function (e) {
+      if (pick && e.pointerId === pick.pid) {
+        var dd = Math.hypot(e.clientX - pick.x0, e.clientY - pick.y0);
+        if (dd > (pick.type === "mouse" ? 5 : 10)) {
+          var pk = pick; pick = null;
+          sceneBox.classList.remove("grabbing");
+          if (peel(pk.p, true)) {
+            // carry on as a normal "move" of the film, from where the pointer went down
+            pointers.set(e.pointerId, pt(e));
+            gesture = { type: "move", sx: pk.x0, sy: pk.y0, x0: pending.x, y0: pending.y };
+            film.classList.add("lifting");
+            pending.x = gesture.x0 + (e.clientX - gesture.sx) / sc();
+            pending.y = gesture.y0 + (e.clientY - gesture.sy) / sc();
+            clampPending(); layoutPending();
+          }
+        }
+        return;
+      }
+      if (!pending && !pointers.size && e.pointerType === "mouse") {
+        sceneBox.classList.toggle("can-grab", !!hitTest(e.clientX, e.clientY, "mouse"));
+      } else sceneBox.classList.remove("can-grab");
       if (pending && pending.mode === "rub" && !autoRunning) {
         moveRubber(e);
         if (e.pointerType === "mouse") rubber.classList.add("on");
@@ -927,6 +1133,12 @@ button{font:inherit;color:inherit}
       }
     });
     function endPointer(e) {
+      if (pick && e.pointerId === pick.pid) {
+        var pk = pick; pick = null;
+        sceneBox.classList.remove("grabbing");
+        if (e.type === "pointerup" && !pending) select(pk.p);
+        return;
+      }
       if (!pointers.has(e.pointerId)) return;
       pointers.delete(e.pointerId);
       if (gesture && gesture.type === "pinch" && pointers.size === 1) {
@@ -965,6 +1177,17 @@ button{font:inherit;color:inherit}
     $("btnRub").addEventListener("click", function () { setMode("rub"); });
     $("btnAdjust").addEventListener("click", function () { if (!autoRunning) setMode("adjust"); });
     $("btnAuto").addEventListener("click", autoRub);
+    $("btnPeel").addEventListener("click", function () {
+      if (selected && peel(selected, false)) film.focus({ preventScroll: true });
+    });
+    $("btnFront").addEventListener("click", function () { moveLayer(1); });
+    $("btnBack").addEventListener("click", function () { moveLayer(-1); });
+    $("btnUnplace").addEventListener("click", unplace);
+    $("btnDeselect").addEventListener("click", deselect);
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !$("confirmNew").hidden || !$("doneModal").hidden) return;
+      if (selected) { deselect(); e.preventDefault(); }
+    });
 
     film.addEventListener("keydown", function (e) {
       if (!pending || pending.mode !== "adjust") return;
@@ -1010,6 +1233,7 @@ button{font:inherit;color:inherit}
     function newPage() {
       autoRunning = false;
       if (pending) { pending = null; hidePending(false); }
+      selected = null; pick = null;
       placements = [];
       save(); render(); refreshSlots(); updateUI();
       grid.scrollTo({ left: 0, top: 0 });
@@ -1039,7 +1263,8 @@ button{font:inherit;color:inherit}
     fit();
     // test hook (harmless): window.__decalco for automated checks
     window.__decalco = { state: function () { return { placements: placements.slice(), pending: pending && { id: pending.a.id, mode: pending.mode, progress: pending.progress } }; },
-      place: function (id) { placeAtCentre(byId.get(id)); }, rub: function () { setMode("rub"); autoRub(); } };
+      place: function (id) { placeAtCentre(byId.get(id)); },
+      peel: function (id) { var p = placements.filter(function (q) { return q.id === id; })[0]; return !!(p && peel(p, false)); }, rub: function () { setMode("rub"); autoRub(); } };
   }
 })();
 </script>
