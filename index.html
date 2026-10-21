@@ -85,7 +85,7 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
 .app{
-  height:100%;display:flex;flex-direction:column;
+  height:100%;height:100dvh;display:flex;flex-direction:column;
   padding-top:max(8px,env(safe-area-inset-top,0px));
   padding-bottom:max(10px,env(safe-area-inset-bottom,0px));
   padding-left:max(16px,env(safe-area-inset-left,0px));
@@ -141,7 +141,32 @@ button{font:inherit;color:inherit}
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='30'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23777'/%3E%3Cstop offset='.45' stop-color='%23eee'/%3E%3Cstop offset='1' stop-color='%23888'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='13' cy='22' r='3.6' fill='%23000' fill-opacity='.35'/%3E%3Cpath d='M13 22 C13 8 9 2 13 2' fill='none' stroke='url(%23g)' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:space;background-size:26px 30px}
 .scene-box{position:relative;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:2px;
-  box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  box-shadow:0 0 0 1px rgba(0,0,0,.08);background:#e7dcc3}
+.scene-box.clip{overflow:hidden}
+.scene-box.clip.dragging{overflow:visible}
+/* floating zoom buttons */
+.zoombar{position:absolute;right:8px;top:8px;z-index:7;display:flex;flex-direction:column;gap:6px}
+.zbtn{width:40px;height:40px;padding:0;border-radius:12px;border:2px solid rgba(120,90,50,.35);
+  background:rgba(255,250,240,.82);color:#3b2a1c;font-weight:800;font-size:22px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.18);
+  touch-action:manipulation;opacity:.85;transition:opacity .15s ease}
+.zbtn svg{width:20px;height:20px;display:block}
+.zbtn:hover{opacity:1}
+.zbtn:active{transform:translateY(1px)}
+.zbtn[disabled]{opacity:.35;cursor:default}
+@media (orientation:landscape) and (max-height:560px){
+  .zoombar{flex-direction:row;top:6px;right:6px;gap:5px}
+  .zbtn{width:34px;height:34px;font-size:19px;border-radius:10px}
+  .zbtn svg{width:17px;height:17px}
+}
+/* where the visible part sits in the whole image (shown only when it is bigger than the screen) */
+.viewbar{position:absolute;z-index:4;pointer-events:none;background:rgba(40,25,10,.22);border-radius:99px;opacity:0;transition:opacity .25s ease}
+.viewbar.on{opacity:1}
+.viewbar.h{left:28%;right:28%;bottom:4px;height:5px}
+.viewbar.v{top:28%;bottom:28%;left:4px;width:5px}
+.viewbar i{position:absolute;background:rgba(255,255,255,.92);border-radius:99px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.viewbar.h i{top:0;bottom:0}
+.viewbar.v i{left:0;right:0}
 .scene-box canvas#scene{display:block;width:100%;height:100%;border-radius:2px}
 .scene-box.rubbing{cursor:none}
 
@@ -198,6 +223,7 @@ button{font:inherit;color:inherit}
 .meter-bar{width:90px;height:10px;border-radius:99px;background:var(--btn-edge);overflow:hidden}
 .meter-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f6b13d);border-radius:inherit}
 @media (max-width:520px){.long{display:none}.hint{font-size:14px}}
+@media (max-width:430px){.mid{display:none}}
 
 /* ----- the transfer sheet -----
    A bright sticker sheet in both themes: opaque cream paper, white cards, full-colour stickers. */
@@ -215,10 +241,12 @@ button{font:inherit;color:inherit}
 #sheetLeft:empty{display:none}
 
 /* phone / portrait: one horizontal strip that scrolls sideways */
-.sheet-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,78px);grid-auto-columns:80px;gap:6px;
-  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;padding:3px 3px 8px;
+.sheet-grid{display:grid;grid-auto-flow:column;grid-template-rows:90px;grid-auto-columns:90px;gap:8px;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;padding:3px 4px 8px;
+  scroll-snap-type:x mandatory;scroll-padding:0 4px;-webkit-overflow-scrolling:touch;
   scrollbar-width:thin;scrollbar-color:#d6bf95 transparent}
-@media (orientation:portrait) and (min-height:760px){.sheet-grid{grid-template-rows:repeat(3,78px)}}
+.sheet-grid .slot{scroll-snap-align:start}
+@media (hover:none){.sheet-grid{scrollbar-width:none}.sheet-grid::-webkit-scrollbar{display:none}}
 .sheet-grid::-webkit-scrollbar{width:8px;height:8px}
 .sheet-grid::-webkit-scrollbar-thumb{background:#d6bf95;border-radius:99px}
 .sheet-grid::-webkit-scrollbar-track{background:transparent}
@@ -260,13 +288,78 @@ button{font:inherit;color:inherit}
   .sheet{min-height:0;display:flex;flex-direction:column}
   .sheet-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
     grid-auto-flow:row;grid-template-rows:none;grid-auto-columns:auto;
-    grid-template-columns:repeat(auto-fill,minmax(80px,1fr));grid-auto-rows:84px;align-content:start}
+    grid-template-columns:repeat(auto-fill,minmax(80px,1fr));grid-auto-rows:84px;align-content:start;scroll-snap-type:none}
   .slot{touch-action:pan-y}
 }
 @media (min-width:900px) and (orientation:landscape) and (min-height:561px){
   .sheet-grid{grid-auto-rows:104px;gap:8px}
   .slot-name{display:block}
   .slot img{max-width:calc(56% + var(--s,1) * 30%);max-height:calc(50% + var(--s,1) * 26%)}
+}
+
+/* ----- stacked layout (phone portrait, narrow windows): big scene, tool row, carousel at the bottom ----- */
+@media (orientation:portrait), (orientation:landscape) and (max-width:899px) and (min-height:561px){
+  .main{gap:8px;grid-template-rows:minmax(0,1fr) 48px auto}
+  .tools{flex-wrap:nowrap;min-height:0;height:48px;z-index:3;gap:6px}
+  .tools .hint{position:absolute;left:50%;bottom:calc(100% + 20px);transform:translateX(-50%);
+    width:max-content;max-width:calc(100% - 24px);flex:none;pointer-events:none;
+    font-size:13px;line-height:1.25;padding:6px 11px;border-radius:12px;
+    background:rgba(251,246,234,.93);color:#3b2a1c;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+  .tools .hint b{color:#3b2a1c}
+  .tools:not(:has(> .actions:not([hidden]))) .hint{position:static;transform:none;width:auto;max-width:none;flex:1 1 auto;
+    background:none;box-shadow:none;padding:0 4px;color:var(--ink)}
+  .tools:not(:has(> .actions:not([hidden]))) .hint b{color:var(--ink)}
+  .actions{flex:1 1 auto;min-width:0;flex-wrap:nowrap;justify-content:flex-start;gap:5px;
+    overflow-x:auto;overflow-y:hidden;padding:0 2px 4px;scrollbar-width:none;touch-action:pan-x}
+  .actions::-webkit-scrollbar{display:none}
+  .actions > :first-child{margin-left:auto}
+  .actions > :last-child{margin-right:auto}
+  .tools .btn{min-height:42px;padding:6px 8px;font-size:13.5px;gap:0}
+  .actions{gap:4px}
+  .tools .btn.icon{min-width:42px;font-size:20px}
+  .meter{font-size:13px;gap:5px}
+  .meter-bar{width:56px}
+  .sheet{padding:5px 6px 4px;border-radius:14px}
+  .sheet-label{font-size:13px;padding:0 4px 4px}
+  #sheetLeft{font-size:11px;padding:2px 8px}
+}
+@media (max-width:600px){
+  .top{padding:0 0 6px;flex-wrap:nowrap}
+  .logo{font-size:23px}
+  .sub{display:none}
+  .counter{font-size:12px;padding:5px 8px}
+  .badge{font-size:12px;padding:4px 7px}
+  .top-right{gap:6px}
+  .top .btn.small{min-height:34px;padding:4px 9px;font-size:13px}
+}
+/* phone landscape: less chrome around the page */
+@media (orientation:landscape) and (max-height:560px){
+  .app{padding-top:max(4px,env(safe-area-inset-top,0px));padding-bottom:max(4px,env(safe-area-inset-bottom,0px))}
+  .top{padding:0 0 4px}
+  .logo{font-size:22px}
+  .sub{display:none}
+  .counter{font-size:12px;padding:4px 8px}
+  .top .btn.small{min-height:32px;padding:3px 9px;font-size:13px}
+  .main{gap:6px}
+  .page{--pp:6px;--bind:12px}
+  .binding{top:-8px;height:24px;background-size:22px 24px}
+  .hint{font-size:13px}
+}
+/* phone portrait: edge to edge, as little chrome as possible */
+@media (max-width:600px) and (orientation:portrait){
+  .app{padding-top:max(4px,env(safe-area-inset-top,0px));padding-bottom:0;
+    padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+  .top{padding:0 8px 4px}
+  .main{gap:4px}
+  .page{--pp:0px;--bind:0px;border-radius:0;box-shadow:none;background:none}
+  .page::after,.binding{display:none}
+  .scene-box{border-radius:0;box-shadow:none}
+  .scene-box canvas#scene{border-radius:0}
+  .tools{padding:0 4px}
+  .sheet{border-radius:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -2px 10px rgba(40,25,10,.18);
+    padding:4px 0 max(4px,env(safe-area-inset-bottom,0px))}
+  .sheet-label{padding:0 10px 3px}
+  .sheet-grid{padding:3px 8px 4px;scroll-padding:0 8px}
 }
 
 /* ----- dialogs ----- */
@@ -317,6 +410,13 @@ button{font:inherit;color:inherit}
             <div class="handle" id="handle" aria-hidden="true" title="Agrandir / rétrécir"></div>
           </div>
           <div class="rubber" id="rubber" aria-hidden="true"></div>
+          <div class="viewbar h" id="vbarH" aria-hidden="true"><i></i></div>
+          <div class="viewbar v" id="vbarV" aria-hidden="true"><i></i></div>
+          <div class="zoombar" id="zoombar" role="group" aria-label="Zoom de la page">
+            <button class="zbtn" id="btnZoomIn" type="button" aria-label="Zoomer" title="Zoomer">+</button>
+            <button class="zbtn" id="btnZoomOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
+            <button class="zbtn" id="btnZoomFit" type="button" aria-label="Voir toute la page" title="Voir toute la page"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+          </div>
         </div>
       </div>
     </section>
@@ -327,7 +427,7 @@ button{font:inherit;color:inherit}
         <button class="btn icon" id="btnSmaller" type="button" aria-label="Plus petite">−</button>
         <button class="btn icon" id="btnBigger" type="button" aria-label="Plus grande">+</button>
         <button class="btn" id="btnFlip" type="button">↔ Retourner</button>
-        <button class="btn" id="btnCancel" type="button">↩ Remettre<span class="long"> sur la planche</span></button>
+        <button class="btn" id="btnCancel" type="button" aria-label="Remettre sur la planche" title="Remettre sur la planche">↩<span class="mid"> Remettre</span><span class="long"> sur la planche</span></button>
         <button class="btn primary" id="btnRub" type="button">✋ Frotter</button>
       </div>
       <div class="actions" id="actsRub" hidden>
@@ -339,7 +439,7 @@ button{font:inherit;color:inherit}
         <button class="btn primary" id="btnPeel" type="button">✋ Décoller</button>
         <button class="btn" id="btnFront" type="button" aria-label="Passer devant">⬆ Devant</button>
         <button class="btn" id="btnBack" type="button" aria-label="Passer derrière">⬇ Derrière</button>
-        <button class="btn" id="btnUnplace" type="button" aria-label="Remettre sur la planche">↩<span class="long"> Remettre sur la</span> planche</button>
+        <button class="btn" id="btnUnplace" type="button" aria-label="Remettre sur la planche">↩<span class="long"> Remettre sur la</span><span class="mid"> planche</span></button>
         <button class="btn icon" id="btnDeselect" type="button" aria-label="Fini, ne plus choisir cette décalco">✓</button>
       </div>
     </div>
@@ -517,29 +617,33 @@ button{font:inherit;color:inherit}
     }
 
     /* ---------------- scene rendering ---------------- */
-    var dpr = 1, cssW = 0, cssH = 0;
+    var dpr = 1;
+    // The canvas covers the viewport (sceneBox); the scene is drawn through the view transform.
     function render() {
       var ctx = canvas.getContext("2d");
-      var W = canvas.width, H = canvas.height;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, W, H);
-      if (imgReady(sceneImg)) ctx.drawImage(sceneImg, 0, 0, W, H);
-      else { ctx.fillStyle = "#e9d7b0"; ctx.fillRect(0, 0, W, H); }
-      var k = W / SC.width;
-      placements.forEach(function (p) { drawPrinted(ctx, p, k); });
-      if (selected && placements.indexOf(selected) >= 0) drawSelection(ctx, selected, k);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!vw || !vh) return;
+      var d = canvas.width / vw, k = view.k;
+      ctx.setTransform(d * k, 0, 0, d * k, d * view.ox, d * view.oy);   // scene units -> canvas px
+      ctx.imageSmoothingQuality = "high";
+      if (imgReady(sceneImg)) ctx.drawImage(sceneImg, 0, 0, SC.width, SC.height);
+      else { ctx.fillStyle = "#e9d7b0"; ctx.fillRect(0, 0, SC.width, SC.height); }
+      placements.forEach(function (p) { drawPrinted(ctx, p, 1); });
+      if (selected && placements.indexOf(selected) >= 0) drawSelection(ctx, selected, 1 / k);
     }
-    function drawSelection(ctx, p, k) {
+    // u = scene units per css px, so the outline keeps the same on-screen thickness at any zoom
+    function drawSelection(ctx, p, u) {
       var a = byId.get(p.id); if (!a) return;
-      var h = p.h * k, w = h * aspectOf(a), pad = 6 * dpr;
-      var x = p.x * k - w / 2 - pad, y = p.y * k - h / 2 - pad;
+      var h = p.h, w = h * aspectOf(a), pad = 6 * u;
+      var x = p.x - w / 2 - pad, y = p.y - h / 2 - pad;
       ctx.save();
       ctx.lineJoin = "round";
       ctx.setLineDash([]);
-      ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 6 * dpr;
+      ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 6 * u;
       ctx.strokeRect(x, y, w + 2 * pad, h + 2 * pad);
-      ctx.setLineDash([9 * dpr, 6 * dpr]);
-      ctx.strokeStyle = "#e2702a"; ctx.lineWidth = 3 * dpr;
+      ctx.setLineDash([9 * u, 6 * u]);
+      ctx.strokeStyle = "#e2702a"; ctx.lineWidth = 3 * u;
       ctx.strokeRect(x, y, w + 2 * pad, h + 2 * pad);
       ctx.restore();
     }
@@ -575,9 +679,8 @@ button{font:inherit;color:inherit}
       return false;
     }
     function hitTest(cx, cy, type) {
-      var b = sceneBox.getBoundingClientRect(), s = sc();
-      if (!s) return null;
-      var sx = (cx - b.left) / s, sy = (cy - b.top) / s;
+      if (!vw) return null;
+      var q = toScene(cx, cy), sx = q.x, sy = q.y;
       var r = type === "mouse" ? 1 : 2;   // a little extra reach for fingers
       for (var i = placements.length - 1; i >= 0; i--) {
         var p = placements[i], a = byId.get(p.id);
@@ -615,29 +718,124 @@ button{font:inherit;color:inherit}
     }
 
     /* ---------------- layout / fit ---------------- */
+    /* The scene box is a viewport onto the scene. view.k = css px per scene unit,
+       (view.ox, view.oy) = where the scene's top-left corner sits in the viewport (css px).
+       Every screen <-> scene conversion goes through toScene / toBox. */
+    var view = { k: 1, ox: 0, oy: 0 };
+    var vw = 0, vh = 0, tall = false, viewInit = false, viewAnim = 0;
+    function kMin() { return Math.min(vw / SC.width, vh / SC.height); }          // whole scene visible
+    function kDefault() { return tall ? vh / SC.height : kMin(); }               // tall viewport: fill its height
+    function kMax() { return Math.max(kMin() * 3, kDefault() * 2); }
+    function sc() { return view.k; }  // css px per scene unit
+    function toScene(cx, cy) {
+      var b = sceneBox.getBoundingClientRect();
+      return { x: (cx - b.left - view.ox) / view.k, y: (cy - b.top - view.oy) / view.k };
+    }
+    function toBox(x, y) { return { x: view.ox + x * view.k, y: view.oy + y * view.k }; }
+    function clampView() {
+      if (!vw || !vh) return;
+      view.k = Math.max(kMin(), Math.min(kMax(), view.k));
+      var sw = SC.width * view.k, sh = SC.height * view.k;
+      view.ox = sw <= vw ? (vw - sw) / 2 : Math.max(vw - sw, Math.min(0, view.ox));
+      view.oy = sh <= vh ? (vh - sh) / 2 : Math.max(vh - sh, Math.min(0, view.oy));
+    }
+    function isZoomed() { return SC.width * view.k > vw + 1 || SC.height * view.k > vh + 1; }
+    function viewChanged() {
+      clampView();
+      scheduleRender();
+      layoutPending();
+      updateZoomUI();
+    }
+    // zoom to k keeping the scene point under (fx, fy) (viewport css px) where it is
+    function zoomAbout(k, fx, fy) {
+      var sx = (fx - view.ox) / view.k, sy = (fy - view.oy) / view.k;
+      view.k = Math.max(kMin(), Math.min(kMax(), k));
+      view.ox = fx - sx * view.k; view.oy = fy - sy * view.k;
+      viewChanged();
+    }
+    function animateZoom(k1, fx, fy) {
+      var tok = ++viewAnim, k0 = view.k;
+      k1 = Math.max(kMin(), Math.min(kMax(), k1));
+      if (mqReduce.matches || Math.abs(k1 - k0) < 1e-4) { zoomAbout(k1, fx, fy); return; }
+      var t0 = performance.now(), D = 220;
+      (function step() {
+        if (tok !== viewAnim) return;
+        var t = Math.min(1, (performance.now() - t0) / D), e = 1 - Math.pow(1 - t, 3);
+        zoomAbout(k0 + (k1 - k0) * e, fx, fy);
+        if (t < 1) requestAnimationFrame(step);
+      })();
+    }
+    function stopViewAnim() { viewAnim++; }
+    function centreScene() { return { x: (vw / 2 - view.ox) / view.k, y: (vh / 2 - view.oy) / view.k }; }
+    function resetView() {
+      stopViewAnim();
+      view.k = kDefault();
+      view.ox = vw / 2 - (SC.width / 2) * view.k; view.oy = vh / 2 - (SC.height / 2) * view.k;
+      viewChanged();
+    }
+    var vbarH = $("vbarH"), vbarV = $("vbarV"), vthH = vbarH.firstChild, vthV = vbarV.firstChild;
+    var zIn = $("btnZoomIn"), zOut = $("btnZoomOut"), zFit = $("btnZoomFit");
+    function updateZoomUI() {
+      var lo = view.k <= kMin() * 1.01, hi = view.k >= kMax() * 0.99;
+      zIn.disabled = hi; zOut.disabled = lo;
+      // "see it all"; once everything is visible on a tall screen it fills the height again
+      var back = lo && tall;
+      zFit.disabled = lo && !tall;
+      var lab = back ? "Remplir l'écran" : "Voir toute la page";
+      zFit.setAttribute("aria-label", lab); zFit.title = lab;
+      sceneBox.classList.toggle("clip", isZoomed());
+      var sw = SC.width * view.k, sh = SC.height * view.k;
+      vbarH.classList.toggle("on", sw > vw + 1);
+      vbarV.classList.toggle("on", sh > vh + 1);
+      vthH.style.left = (100 * Math.max(0, -view.ox) / sw) + "%"; vthH.style.width = (100 * Math.min(1, vw / sw)) + "%";
+      vthV.style.top = (100 * Math.max(0, -view.oy) / sh) + "%"; vthV.style.height = (100 * Math.min(1, vh / sh)) + "%";
+    }
+    zIn.addEventListener("click", function () { animateZoom(view.k * 1.5, vw / 2, vh / 2); });
+    zOut.addEventListener("click", function () { animateZoom(view.k / 1.5, vw / 2, vh / 2); });
+    zFit.addEventListener("click", function () {
+      var lo = view.k <= kMin() * 1.01;
+      animateZoom(lo && tall ? kDefault() : kMin(), vw / 2, vh / 2);
+    });
+
     function fit() {
       var r = stageWrap.getBoundingClientRect();
       var cs = getComputedStyle(page);
       var padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-      var padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + 8;
+      var padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + (parseFloat(cs.paddingTop) > 0 ? 8 : 0);   // room for the page shadow
       var aw = r.width - padX, ah = r.height - padY;
       var ar = SC.width / SC.height;
-      var w = aw, h = w / ar;
-      if (h > ah) { h = ah; w = h * ar; }
-      w = Math.max(80, Math.floor(w)); h = Math.round(w / ar);
-      sceneBox.style.width = w + "px"; sceneBox.style.height = h + "px";
-      var nd = Math.min(window.devicePixelRatio || 1, 3);
-      if (w !== cssW || h !== cssH || nd !== dpr) {
-        cssW = w; cssH = h; dpr = nd;
-        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-        render();
+      // stacked layout with room taller than the scene: the viewport takes all the room
+      var nt = !mqWide.matches && ah > 80 && aw / ah < ar * 0.97;
+      var w, h;
+      if (nt) { w = Math.max(80, Math.floor(aw)); h = Math.max(80, Math.floor(ah)); }
+      else {
+        w = aw; h = w / ar;
+        if (h > ah) { h = ah; w = h * ar; }
+        w = Math.max(80, Math.floor(w)); h = Math.round(w / ar);
       }
+      sceneBox.style.width = w + "px"; sceneBox.style.height = h + "px";
+      if (w !== vw || h !== vh || nt !== tall || !viewInit) {
+        // keep the same relative zoom and the same scene point in the middle (fresh start if the layout flipped)
+        var keep = viewInit && nt === tall, rel = keep ? view.k / kDefault() : 1;
+        var c = keep ? centreScene() : { x: SC.width / 2, y: SC.height / 2 };
+        vw = w; vh = h; tall = nt;
+        view.k = rel * kDefault();
+        view.ox = vw / 2 - c.x * view.k; view.oy = vh / 2 - c.y * view.k;
+        viewInit = true;
+        clampView();
+      }
+      // backing store = displayed size x devicePixelRatio (capped); the view transform is applied when drawing
+      var nd = Math.min(window.devicePixelRatio || 1, 3, 4096 / Math.max(w, h));
+      var cw = Math.round(w * nd), ch = Math.round(h * nd);
+      if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+      dpr = nd;
+      render();
       layoutPending();
+      updateZoomUI();
     }
     var ro = new ResizeObserver(function () { fit(); });
     ro.observe(stageWrap);
     window.addEventListener("resize", fit);
-    function sc() { return cssW / SC.width; }  // css px per scene unit
 
     /* ---------------- sheet ---------------- */
     var slots = new Map();
@@ -692,6 +890,7 @@ button{font:inherit;color:inherit}
       }
       film.classList.toggle("rubmode", m === "rub");
       sceneBox.classList.toggle("rubbing", m === "rub");
+      sceneBox.classList.toggle("dragging", m === "drag");
       if (m !== "rub") rubber.classList.remove("on", "active");
       $("btnAuto").disabled = autoRunning;
       $("btnAdjust").disabled = autoRunning;
@@ -740,8 +939,9 @@ button{font:inherit;color:inherit}
       var m = Math.max(6, Math.min(18, H * 0.08));
       film.style.setProperty("--m", m + "px");
       film.style.setProperty("--fx", pending.flip ? -1 : 1);
-      film.style.left = (pending.x * s - W / 2 - m) + "px";
-      film.style.top = (pending.y * s - H / 2 - m) + "px";
+      var c = toBox(pending.x, pending.y);
+      film.style.left = (c.x - W / 2 - m) + "px";
+      film.style.top = (c.y - H / 2 - m) + "px";
       film.style.width = (W + 2 * m) + "px";
       film.style.height = (H + 2 * m) + "px";
       var f = Math.min(dpr, 1200 / Math.max(W, H, 1));
@@ -792,7 +992,11 @@ button{font:inherit;color:inherit}
     function placeAtCentre(a, viaKeyboard) {
       if (!a || sheetBusy() || isUsed(a.id)) return;
       if (pending) returnPending(false);
-      newPending(a, SC.width / 2, SC.height * 0.6);
+      // middle of the part of the scene that is visible (= W/2, 0.6 H when the whole scene shows)
+      var x0 = Math.max(0, -view.ox / view.k), x1 = Math.min(SC.width, (vw - view.ox) / view.k);
+      var y0 = Math.max(0, -view.oy / view.k), y1 = Math.min(SC.height, (vh - view.oy) / view.k);
+      if (!vw || x1 <= x0 || y1 <= y0) { x0 = 0; x1 = SC.width; y0 = 0; y1 = SC.height; }
+      newPending(a, (x0 + x1) / 2, y0 + (y1 - y0) * 0.6);
       clampPending(); layoutPending();
       setMode("adjust");
       if (viaKeyboard) film.focus({ preventScroll: true });
@@ -952,11 +1156,10 @@ button{font:inherit;color:inherit}
       return mqWide.matches ? (dx < 0 && Math.abs(dx) > Math.abs(dy) * 1.2) : (dy < 0 && Math.abs(dy) > Math.abs(dx) * 1.2);
     }
     function dragTarget(cx, cy, type) {
-      var b = sceneBox.getBoundingClientRect(), s = sc();
-      var H = pending.h * s;
+      var H = pending.h * sc();
       var lift = type === "mouse" ? 0 : H * 0.5 + 26;   // keep it visible above the finger
-      pending.x = (cx - b.left) / s;
-      pending.y = (cy - lift - b.top) / s;
+      var q = toScene(cx, cy - lift);
+      pending.x = q.x; pending.y = q.y;
       layoutPending();
     }
     function beginDrag() {
@@ -977,7 +1180,9 @@ button{font:inherit;color:inherit}
       if (!p || !p.started || !pending) return;
       film.classList.remove("lifting");
       var inScene = pending.x > -SC.width * 0.02 && pending.x < SC.width * 1.02 && pending.y > -SC.height * 0.02 && pending.y < SC.height * 1.02;
-      if (cancelled || !inScene) { returnPending(true); return; }
+      var bp = toBox(pending.x, pending.y);   // and on the visible part of it (the view may be zoomed)
+      var inView = bp.x > -16 && bp.x < vw + 16 && bp.y > -16 && bp.y < vh + 16;
+      if (cancelled || !inScene || !inView) { returnPending(true); return; }
       clampPending(); layoutPending();
       setMode("adjust");
     }
@@ -1034,23 +1239,55 @@ button{font:inherit;color:inherit}
     /* ---------------- gestures on the page ---------------- */
     var pointers = new Map(), gesture = null;
     var pick = null;   // finger/mouse down on a placed sticker: a tap selects it, a drag peels and moves it
+    var lastTap = null;   // for double-tap zoom
     function pt(e) { return { x: e.clientX, y: e.clientY }; }
-    sceneBox.addEventListener("pointerdown", function (e) {
-      if (!pending && !autoRunning) {
-        if (pick || (e.pointerType === "mouse" && e.button !== 0)) return;
-        var hit = hitTest(e.clientX, e.clientY, e.pointerType);
-        if (!hit) { deselect(); return; }
-        pick = { p: hit, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY };
-        if (e.pointerType === "mouse") sceneBox.classList.add("grabbing");
-        try { sceneBox.setPointerCapture(e.pointerId); } catch (er) {}
-        e.preventDefault();
+    // view gestures: one finger on an empty spot pans, two fingers zoom around their middle
+    function startPan(e) {
+      gesture = { type: "pan", pid: e.pointerId, sx: e.clientX, sy: e.clientY, ox0: view.ox, oy0: view.oy, moved: false };
+    }
+    function startViewPinch() {
+      var ps = Array.from(pointers.values()), b = sceneBox.getBoundingClientRect();
+      var mx = (ps[0].x + ps[1].x) / 2 - b.left, my = (ps[0].y + ps[1].y) / 2 - b.top;
+      gesture = { type: "vpinch", d0: Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) || 1, k0: view.k,
+        sx: (mx - view.ox) / view.k, sy: (my - view.oy) / view.k };
+    }
+    function nearFilm(cx, cy) {
+      var r = film.getBoundingClientRect(), g = 24;
+      return cx > r.left - g && cx < r.right + g && cy > r.top - g && cy < r.bottom + g;
+    }
+    function tapEmpty(e) {
+      var now = Date.now();
+      if (e.pointerType !== "mouse" && lastTap && now - lastTap.t < 330 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 34) {
+        lastTap = null;
+        var b = sceneBox.getBoundingClientRect(), fx = e.clientX - b.left, fy = e.clientY - b.top;
+        animateZoom(view.k > kDefault() * 1.15 ? kDefault() : view.k * 2, fx, fy);
         return;
       }
-      if (!pending || autoRunning) return;
-      var m = pending.mode;
-      if (m !== "adjust" && m !== "rub") return;
+      lastTap = { t: now, x: e.clientX, y: e.clientY };
+      if (!pending) deselect();
+    }
+    sceneBox.addEventListener("pointerdown", function (e) {
+      if (e.target.closest && e.target.closest(".zoombar")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      var m = pending ? pending.mode : "idle";
+      if (autoRunning || (m !== "idle" && m !== "adjust" && m !== "rub")) return;
+      stopViewAnim();
       pointers.set(e.pointerId, pt(e));
       try { sceneBox.setPointerCapture(e.pointerId); } catch (er) {}
+      e.preventDefault();
+      if (m === "idle") {
+        if (pointers.size === 1) {
+          var hit = hitTest(e.clientX, e.clientY, e.pointerType);
+          if (hit) {
+            pick = { p: hit, pid: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY };
+            if (e.pointerType === "mouse") sceneBox.classList.add("grabbing");
+          } else startPan(e);
+        } else if (pointers.size === 2) {
+          if (pick) { pick = null; sceneBox.classList.remove("grabbing"); }
+          startViewPinch();
+        }
+        return;
+      }
       if (m === "adjust") {
         if (pointers.size === 2) {
           var ps = Array.from(pointers.values());
@@ -1064,16 +1301,24 @@ button{font:inherit;color:inherit}
           } else if (film.contains(e.target)) {
             gesture = { type: "move", sx: e.clientX, sy: e.clientY, x0: pending.x, y0: pending.y };
             film.classList.add("lifting");
-          } else gesture = null;
+          } else startPan(e);
         }
-        if (gesture) e.preventDefault();
-      } else if (m === "rub" && pointers.size === 1) {
-        gesture = { type: "rub", last: clientToLocal(e.clientX, e.clientY), lx: e.clientX, ly: e.clientY };
-        rubber.classList.add("on", "active");
-        moveRubber(e);
-        e.preventDefault();
+      } else if (m === "rub") {
+        if (pointers.size === 1) {
+          if (nearFilm(e.clientX, e.clientY)) {
+            gesture = { type: "rub", last: clientToLocal(e.clientX, e.clientY), lx: e.clientX, ly: e.clientY };
+            rubber.classList.add("on", "active");
+            moveRubber(e);
+          } else startPan(e);
+        } else if (pointers.size === 2) {
+          rubber.classList.remove("active");
+          if (e.pointerType !== "mouse") rubber.classList.remove("on");
+          startViewPinch();
+        }
       }
     });
+    sceneBox.addEventListener("gesturestart", function (e) { e.preventDefault(); });   // iOS: no page zoom here
+    sceneBox.addEventListener("gesturechange", function (e) { e.preventDefault(); });
     function moveRubber(e) {
       var b = sceneBox.getBoundingClientRect();
       rubber.style.left = (e.clientX - b.left) + "px";
@@ -1104,9 +1349,27 @@ button{font:inherit;color:inherit}
         moveRubber(e);
         if (e.pointerType === "mouse") rubber.classList.add("on");
       }
-      if (!pointers.has(e.pointerId) || !pending) return;
+      if (!pointers.has(e.pointerId)) return;
       pointers.set(e.pointerId, pt(e));
       if (!gesture) return;
+      if (gesture.type === "pan") {
+        if (e.pointerId !== gesture.pid) return;
+        var px = e.clientX - gesture.sx, py = e.clientY - gesture.sy;
+        if (!gesture.moved && Math.hypot(px, py) > (e.pointerType === "mouse" ? 4 : 8)) gesture.moved = true;
+        if (gesture.moved) { view.ox = gesture.ox0 + px; view.oy = gesture.oy0 + py; viewChanged(); }
+        return;
+      }
+      if (gesture.type === "vpinch") {
+        if (pointers.size < 2) return;
+        var vp = Array.from(pointers.values()), bb = sceneBox.getBoundingClientRect();
+        var vd = Math.hypot(vp[0].x - vp[1].x, vp[0].y - vp[1].y);
+        var vmx = (vp[0].x + vp[1].x) / 2 - bb.left, vmy = (vp[0].y + vp[1].y) / 2 - bb.top;
+        view.k = Math.max(kMin(), Math.min(kMax(), gesture.k0 * vd / gesture.d0));
+        view.ox = vmx - gesture.sx * view.k; view.oy = vmy - gesture.sy * view.k;   // pinch point stays under the fingers
+        viewChanged();
+        return;
+      }
+      if (!pending) return;
       var s = sc();
       if (gesture.type === "move") {
         pending.x = gesture.x0 + (e.clientX - gesture.sx) / s;
@@ -1133,15 +1396,25 @@ button{font:inherit;color:inherit}
       }
     });
     function endPointer(e) {
+      var had = pointers.delete(e.pointerId);
       if (pick && e.pointerId === pick.pid) {
         var pk = pick; pick = null;
         sceneBox.classList.remove("grabbing");
         if (e.type === "pointerup" && !pending) select(pk.p);
         return;
       }
-      if (!pointers.has(e.pointerId)) return;
-      pointers.delete(e.pointerId);
-      if (gesture && gesture.type === "pinch" && pointers.size === 1) {
+      if (!had) return;
+      if (gesture && gesture.type === "pan" && gesture.pid === e.pointerId) {
+        var g = gesture; gesture = null;
+        if (!g.moved && e.type === "pointerup") tapEmpty(e);
+      }
+      if (gesture && gesture.type === "vpinch" && pointers.size === 1) {
+        // one finger left: keep panning with it
+        var rest = pointers.keys().next().value, rp = pointers.get(rest);
+        gesture = { type: "pan", pid: rest, sx: rp.x, sy: rp.y, ox0: view.ox, oy0: view.oy, moved: true };
+        return;
+      }
+      if (gesture && gesture.type === "pinch" && pointers.size === 1 && pending) {
         var p = Array.from(pointers.values())[0];
         gesture = { type: "move", sx: p.x, sy: p.y, x0: pending.x, y0: pending.y };
         return;
@@ -1158,11 +1431,29 @@ button{font:inherit;color:inherit}
     sceneBox.addEventListener("pointerleave", function (e) {
       if (e.pointerType === "mouse" && !pointers.size) rubber.classList.remove("on");
     });
+    // wheel / trackpad: over the film (or anywhere while nothing can pan) it sizes the film as before;
+    // otherwise ctrl+wheel (trackpad pinch) zooms the view and a plain wheel pans it
     sceneBox.addEventListener("wheel", function (e) {
-      if (!pending || pending.mode !== "adjust") return;
+      if (e.target.closest && e.target.closest(".zoombar")) return;
       e.preventDefault();
-      pending.h *= Math.exp(-e.deltaY * 0.0015);
-      clampPending(); layoutPending();
+      var f = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? vh : 1;
+      var dx = e.deltaX * f, dy = e.deltaY * f;
+      var adj = pending && pending.mode === "adjust";
+      if (adj && (film.contains(e.target) || (!e.ctrlKey && !isZoomed()))) {
+        pending.h *= Math.exp(-dy * 0.0015);
+        clampPending(); layoutPending();
+        return;
+      }
+      if (pending && pending.mode !== "adjust" && pending.mode !== "rub") return;
+      stopViewAnim();
+      if (e.ctrlKey) {
+        var b = sceneBox.getBoundingClientRect();
+        zoomAbout(view.k * Math.exp(-Math.max(-50, Math.min(50, dy)) * 0.01), e.clientX - b.left, e.clientY - b.top);   // capped: a mouse wheel notch = x1.65
+      } else {
+        if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+        view.ox -= dx; view.oy -= dy;
+        viewChanged();
+      }
     }, { passive: false });
 
     /* ---------------- buttons ---------------- */
@@ -1235,7 +1526,8 @@ button{font:inherit;color:inherit}
       if (pending) { pending = null; hidePending(false); }
       selected = null; pick = null;
       placements = [];
-      save(); render(); refreshSlots(); updateUI();
+      save(); refreshSlots(); updateUI();
+      resetView(); render();
       grid.scrollTo({ left: 0, top: 0 });
     }
     function celebrate() {
@@ -1264,6 +1556,8 @@ button{font:inherit;color:inherit}
     // test hook (harmless): window.__decalco for automated checks
     window.__decalco = { state: function () { return { placements: placements.slice(), pending: pending && { id: pending.a.id, mode: pending.mode, progress: pending.progress } }; },
       place: function (id) { placeAtCentre(byId.get(id)); },
+      view: function () { return { k: view.k, ox: view.ox, oy: view.oy, vw: vw, vh: vh, tall: tall, kMin: kMin(), kDefault: kDefault(), kMax: kMax() }; },
+      toBox: function (x, y) { return toBox(x, y); },
       peel: function (id) { var p = placements.filter(function (q) { return q.id === id; })[0]; return !!(p && peel(p, false)); }, rub: function () { setMode("rub"); autoRub(); } };
   }
 })();
