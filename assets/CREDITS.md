@@ -6,3 +6,7 @@ Toutes les images ont été générées avec ChatGPT (OpenAI) à partir d'octobr
 
 - Les planches de stickers sont découpées avec `tools/decouper.py` : chaque sticker est recadré sur son contenu, réduit à 256 px maximum de côté, puis compressé en WebP (qualité 80, alpha sans perte). Les planches d'origine ne sont pas gardées.
 - Les fonds sont recadrés au format 16:10 et redimensionnés en 1600 × 1000 (`tools/fond.py`).
+
+## Icônes
+
+Icônes de l'interface : [Lucide](https://lucide.dev) (licence ISC), copiées en SVG dans `index.html`.
