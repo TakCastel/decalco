@@ -80,4 +80,4 @@ Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) com
 - Fait : fond (clairière d'automne)
 - Fait (planche 1) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
 - Fait (planche 2) : ours, loup, biche, castor, chouette, chêne, feuilles mortes, mûres
-- Planche 3 (5 × 2) : lynx, lapin, taupe, pic-vert, rouge-gorge, couleuvre, salamandre, abeille, cabane, cèpe
+- Planche 3 (5 × 2) : lynx, chevreuil, marcassin, lapin, pic-vert, corbeau, couleuvre, salamandre, cabane, feu de camp
