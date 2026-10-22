@@ -15,6 +15,7 @@ Le jeu tourne directement dans le navigateur : ouvrir `index.html` via un serveu
 - `assets/scene-<theme>.webp` : le fond des autres thèmes
 - `tools/decouper.py` : découpe une planche ChatGPT en stickers
 - `tools/fond.py` : prépare un fond ChatGPT (16:10, 1600 × 1000, WebP)
+- `tools/damier.py` : efface le faux damier gris que ChatGPT dessine parfois à la place de la transparence
 - `build.py` : crée une version en un seul fichier (`dist/decalco.html`), utile pour l'envoyer par mail
 
 Images générées avec ChatGPT, voir `assets/CREDITS.md`.
@@ -50,14 +51,15 @@ Un thème est jouable dès qu'il est dans `window.THEMES` (`src/assets.js`) avec
 ## Ajouter des stickers
 
 1. Générer une planche dans ChatGPT avec le prompt ci-dessous (X colonnes × Y lignes).
-2. La découper :
+2. Si la planche a un faux damier gris au lieu d'un vrai fond transparent : `python3 tools/damier.py planche.png planche-ok.png`, puis découper `planche-ok.png`.
+3. La découper :
    ```
    python3 tools/decouper.py planche.png 4 2 savane meerkat baboon cheetah hyena ostrich vulture hornbill gazelle
    ```
    Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case).
    Les stickers arrivent dans `assets/stickers/savane/`.
-3. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
-4. Ne pas garder la planche dans le dépôt.
+4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
+5. Ne pas garder la planche dans le dépôt.
 
 ### Prompt ChatGPT
 
@@ -77,3 +79,5 @@ Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) com
 
 - Fait : fond (clairière d'automne)
 - Fait (planche 1) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
+- Fait (planche 2) : ours, loup, biche, castor, chouette, chêne, feuilles mortes, mûres
+- Planche 3 (5 × 2) : lynx, pic-vert, rouge-gorge, taupe, ver de terre, bouleau, fougère, tronc couché, cabane, pomme de pin

@@ -82,6 +82,14 @@ window.STICKERS = [
   { id: "frog", theme: "foret", name: "Grenouille", src: "assets/stickers/foret/frog.webp", w: 252, h: 256, scale: 0.4 },
   { id: "mushroom", theme: "foret", name: "Champignon", src: "assets/stickers/foret/mushroom.webp", w: 243, h: 256, scale: 0.45 },
   { id: "fir", theme: "foret", name: "Sapin", src: "assets/stickers/foret/fir.webp", w: 221, h: 256, scale: 1.6 },
+  { id: "bear", theme: "foret", name: "Ours", src: "assets/stickers/foret/bear.webp", w: 213, h: 256, scale: 1.3 },
+  { id: "wolf", theme: "foret", name: "Loup", src: "assets/stickers/foret/wolf.webp", w: 212, h: 256, scale: 0.9 },
+  { id: "doe", theme: "foret", name: "Biche", src: "assets/stickers/foret/doe.webp", w: 180, h: 256, scale: 1.1 },
+  { id: "beaver", theme: "foret", name: "Castor", src: "assets/stickers/foret/beaver.webp", w: 256, h: 248, scale: 0.6 },
+  { id: "tawny", theme: "foret", name: "Chouette", src: "assets/stickers/foret/tawny.webp", w: 201, h: 256, scale: 0.6 },
+  { id: "oak", theme: "foret", name: "Chêne", src: "assets/stickers/foret/oak.webp", w: 242, h: 256, scale: 1.6 },
+  { id: "leaves", theme: "foret", name: "Feuilles mortes", src: "assets/stickers/foret/leaves.webp", w: 256, h: 232, scale: 0.5 },
+  { id: "brambles", theme: "foret", name: "Mûres", src: "assets/stickers/foret/brambles.webp", w: 250, h: 256, scale: 0.7 },
 
   // Jungle (en réserve)
   { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },
