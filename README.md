@@ -44,13 +44,14 @@ Les thèmes à venir (océan, banquise…) auront chacun leur dossier.
 
 ### Prompt ChatGPT
 
-> Planche de stickers pour enfants, {X} colonnes × {Y} lignes, un sujet par case, bien espacés, aucun ne touche son voisin, fond transparent.
-> Style : dessin cartoon arrondi, contour blanc épais autour de chaque sticker, couleurs douces et chaudes, petite ombre interne, vue de trois quarts, en pied (corps entier).
-> Tous les animaux ont le même visage : grands yeux ronds brillants, sourire ouvert et joyeux.
-> Sujets, dans l'ordre : {liste}.
+Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) comme référence de style.
+
+> Garde exactement le même style que l'image jointe (trait, couleurs, contour blanc).
+> Planche de stickers pour enfants, {X} colonnes × {Y} lignes, un sujet par case, bien espacés, aucun ne touche son voisin, fond transparent (PNG).
+> Style : dessin cartoon arrondi, contour blanc épais autour de chaque sticker, couleurs douces et chaudes, vue de trois quarts, corps entier.
+> Sujets, dans l'ordre, avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
 
 ### À générer pour la savane
 
-- Suricate, babouin (façon Rafiki), guépard, hyène, autruche, vautour, calao (façon Zazu), gazelle de Thomson
-- À refaire en souriant, comme les autres : buffle, gnou
-- Décor : baobab, termitière, mare
+- Fait (planche 1) : suricate, babouin, guépard, hyène, autruche, vautour, calao, gazelle
+- Planche 2 : chacal, serval, oryx, marabout, pintade, porc-épic, baobab, termitière
