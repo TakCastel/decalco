@@ -3,12 +3,12 @@
  * Le thème "commun" s'ajoute à tous les autres.
  * Seuls les thèmes listés dans THEMES (ceux qui ont un fond) sont jouables.
  * the : nom avec article ("la savane"), bravo : la phrase de fin de page.
- * confetti : ce qui pleut quand la page est terminée.
+ * confetti : les formes qui pleuvent quand la page est terminée (star, heart, flower, leaf, sparkle).
  */
 window.THEMES = {
-  savane: { name: "Savane", the: "la savane", bravo: "Quelle belle savane !", confetti: ["🦁", "🦒", "🐘", "🦓"],
+  savane: { name: "Savane", the: "la savane", bravo: "Quelle belle savane !", confetti: ["star", "sparkle", "heart", "flower"],
             scene: { src: "assets/scene.webp", width: 1600, height: 1000 } },
-  foret: { name: "Forêt", the: "la forêt", bravo: "Quelle belle forêt !", confetti: ["🦔", "🦉", "🍄", "🍂"],
+  foret: { name: "Forêt", the: "la forêt", bravo: "Quelle belle forêt !", confetti: ["leaf", "star", "heart", "leaf"],
            scene: { src: "assets/scene-foret.webp", width: 1600, height: 1000 } }
   // jungle, ocean, banquise… : à ajouter avec leur fond
 };
