@@ -9,8 +9,10 @@ window.THEMES = {
   savane: { name: "Savane", the: "la savane", bravo: "Quelle belle savane !", confetti: ["star", "sparkle", "heart", "flower"],
             scene: { src: "assets/scene.webp", width: 1600, height: 1000 } },
   foret: { name: "Forêt", the: "la forêt", bravo: "Quelle belle forêt !", confetti: ["leaf", "star", "heart", "leaf"],
-           scene: { src: "assets/scene-foret.webp", width: 1600, height: 1000 } }
-  // jungle, ocean, banquise… : à ajouter avec leur fond
+           scene: { src: "assets/scene-foret.webp", width: 1600, height: 1000 } },
+  jungle: { name: "Jungle", the: "la jungle", bravo: "Quelle belle jungle !", confetti: ["flower", "leaf", "star", "heart"],
+            scene: { src: "assets/scene-jungle.webp", width: 1600, height: 1000 } }
+  // ocean, banquise… : à ajouter avec leur fond
 };
 
 window.STICKERS = [
@@ -101,11 +103,11 @@ window.STICKERS = [
   { id: "nest", theme: "foret", name: "Nid", src: "assets/stickers/foret/nest.webp", w: 256, h: 248, scale: 0.5 },
   { id: "sprout", theme: "foret", name: "Pousse", src: "assets/stickers/foret/sprout.webp", w: 222, h: 256, scale: 0.4 },
 
-  // Jungle (en réserve)
-  { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },
+  // Jungle : animaux du plus connu au moins connu, puis le décor
   { id: "monkey", theme: "jungle", name: "Singe", src: "assets/stickers/jungle/monkey.webp", w: 209, h: 256, scale: 0.7 },
-  { id: "orangutan", theme: "jungle", name: "Orang-outan", src: "assets/stickers/jungle/orangutan.webp", w: 239, h: 256, scale: 0.9 },
+  { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },
   { id: "parrot", theme: "jungle", name: "Perroquet", src: "assets/stickers/jungle/parrot.webp", w: 182, h: 256, scale: 0.6 },
+  { id: "orangutan", theme: "jungle", name: "Orang-outan", src: "assets/stickers/jungle/orangutan.webp", w: 239, h: 256, scale: 0.9 },
   { id: "palm", theme: "jungle", name: "Palmier", src: "assets/stickers/jungle/palm.webp", w: 192, h: 256, scale: 1.6 },
   { id: "flower", theme: "jungle", name: "Fleur", src: "assets/stickers/jungle/flower.webp", w: 256, h: 253, scale: 0.4 },
 
