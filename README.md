@@ -25,7 +25,7 @@ Images générées avec ChatGPT, voir `assets/CREDITS.md`.
 |---|---|---|
 | `savane` | Savane | en jeu |
 | `commun` | Soleil, nuage, rocher | ajouté à tous les thèmes |
-| `foret` | Forêt européenne | en jeu, fond à générer |
+| `foret` | Forêt européenne | en jeu |
 | `jungle` | Jungle | en réserve |
 | `desert` | Désert | en réserve |
 | `montagne` | Montagne | en réserve |
@@ -75,5 +75,5 @@ Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) com
 
 ### À générer pour la forêt
 
-- Fond : sous-bois de forêt européenne en automne doux
+- Fait : fond (clairière d'automne)
 - Planche 1 (4 × 2) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
