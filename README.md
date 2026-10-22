@@ -1,83 +1,58 @@
 # Décalco
 
-Un jeu de décalcomanies : on choisit des stickers d'animaux et on les colle sur un paysage. Le bouton 🗺️ Paysage change de thème ; chaque paysage garde ses décalcos.
+Un jeu de décalcomanies pour enfants : on choisit un sticker sur la planche, on le place sur un paysage, puis on le frotte pour le décalquer.
+
+- Plusieurs paysages (savane, forêt…), à choisir avec le bouton 🗺️ Paysage. Chacun garde ses décalcos.
+- On peut décoller une décalco posée, la passer devant ou derrière les autres.
+- Sur téléphone : grande scène avec zoom et déplacement, planche en carrousel en bas.
+- La page est enregistrée dans le navigateur.
 
 ## Jouer
 
-Le jeu tourne directement dans le navigateur : ouvrir `index.html` via un serveur web (GitHub Pages, ou en local avec `python3 -m http.server` puis http://localhost:8000).
+Ouvrir `index.html` via un serveur web : GitHub Pages, ou en local avec `python3 -m http.server` puis http://localhost:8000.
+
+`?theme=foret` dans l'adresse ouvre directement un paysage.
+
+`python3 build.py` crée une version en un seul fichier, `dist/decalco.html`, pratique à envoyer par mail.
 
 ## Fichiers
 
 - `index.html` : le jeu
-- `src/assets.js` : les thèmes (fond de chaque thème) et la liste de tous les stickers, chacun avec son thème
-- `assets/stickers/<theme>/*.webp` : les stickers, un dossier par thème
-- `assets/scene.webp` : le fond de la savane (`assets/scene.jpg` sert d'aperçu og:image)
-- `assets/scene-<theme>.webp` : le fond des autres thèmes
-- `tools/decouper.py` : découpe une planche ChatGPT en stickers
-- `tools/fond.py` : prépare un fond ChatGPT (16:10, 1600 × 1000, WebP)
-- `tools/damier.py` : efface le faux damier gris que ChatGPT dessine parfois à la place de la transparence
-- `build.py` : crée une version en un seul fichier (`dist/decalco.html`), utile pour l'envoyer par mail
+- `src/assets.js` : les paysages (`window.THEMES`) et tous les stickers (`window.STICKERS`), chacun rattaché à un thème. L'ordre de la liste est l'ordre de la planche.
+- `assets/stickers/<theme>/*.webp` : les stickers, un dossier par thème. Ceux de `commun` (soleil, nuage, rocher) vont avec tous les paysages.
+- `assets/scene.webp`, `assets/scene-<theme>.webp` : les fonds (`assets/scene.jpg` sert d'aperçu og:image)
+- `tools/` : outils pour préparer les images générées avec ChatGPT (voir plus bas)
 
 Images générées avec ChatGPT, voir `assets/CREDITS.md`.
 
-## Thèmes
+## Ajouter un paysage
 
-| Dossier | Thème | État |
-|---|---|---|
-| `savane` | Savane | en jeu |
-| `commun` | Soleil, nuage, rocher | ajouté à tous les thèmes |
-| `foret` | Forêt européenne | en jeu |
-| `jungle` | Jungle | en réserve |
-| `desert` | Désert | en réserve |
-| `montagne` | Montagne | en réserve |
+Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fond. Ses stickers sont ceux dont le `theme` porte le même nom.
 
-Les thèmes à venir (océan, banquise…) auront chacun leur dossier.
+### Le fond
 
-Un thème est jouable dès qu'il est dans `window.THEMES` (`src/assets.js`) avec son fond. On peut ouvrir directement un thème avec `?theme=foret` dans l'adresse.
-
-## Ajouter un fond
-
-1. Générer le fond dans ChatGPT avec le prompt ci-dessous, en joignant `assets/scene.jpg` comme référence de style.
-2. Le préparer : `python3 tools/fond.py fond.png foret` (écrit `assets/scene-foret.webp`).
-3. Ne pas garder l'image d'origine dans le dépôt.
-
-### Prompt ChatGPT (fond)
+1. Le générer dans ChatGPT avec le prompt ci-dessous, en joignant `assets/scene.jpg` comme référence de style.
+2. Le préparer : `python3 tools/fond.py fond.png foret` (recadre en 16:10, 1600 × 1000, écrit `assets/scene-foret.webp`).
 
 > Garde exactement le même style que l'image jointe (dessin cartoon pour enfants, couleurs chaudes et lumineuses, même cadrage).
 > Paysage de {thème}, format paysage 16:10, vide de tout animal et de tout personnage.
 > Cadrage : horizon dans le quart haut de l'image, avec un peu de ciel ; tout le reste est un grand sol dégagé et plat, pour y coller des stickers.
 > Les éléments de décor (arbres, rochers, plantes) restent sur les bords et au loin ; le centre et le bas de l'image sont libres.
 
-## Ajouter des stickers
+### Les stickers
 
-1. Générer une planche dans ChatGPT avec le prompt ci-dessous (X colonnes × Y lignes).
-2. Si la planche a un faux damier gris au lieu d'un vrai fond transparent : `python3 tools/damier.py planche.png planche-ok.png`, puis découper `planche-ok.png`.
+1. Générer une planche dans ChatGPT avec le prompt ci-dessous, en joignant un sticker existant comme référence (par exemple `assets/stickers/savane/lion.webp`).
+2. Si ChatGPT a dessiné un faux damier gris au lieu d'un fond transparent : `python3 tools/damier.py planche.png planche-ok.png`.
 3. La découper :
    ```
-   python3 tools/decouper.py planche.png 4 2 savane meerkat baboon cheetah hyena ostrich vulture hornbill gazelle
+   python3 tools/decouper.py planche.png 4 2 foret deer fox boar squirrel badger frog mushroom fir
    ```
-   Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case).
-   Les stickers arrivent dans `assets/stickers/savane/`.
+   Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case). Les stickers arrivent dans `assets/stickers/<theme>/`.
 4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
-5. Ne pas garder la planche dans le dépôt.
-
-### Prompt ChatGPT
-
-Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) comme référence de style.
 
 > Garde exactement le même style que l'image jointe (trait, couleurs, contour blanc).
 > Planche de stickers pour enfants, {X} colonnes × {Y} lignes, un sujet par case, bien espacés, aucun ne touche son voisin, fond transparent (PNG).
 > Style : dessin cartoon arrondi, contour blanc épais autour de chaque sticker, couleurs douces et chaudes, vue de trois quarts, corps entier.
 > Sujets, dans l'ordre, avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
 
-### À générer pour la savane
-
-- Fait (planche 1) : suricate, babouin, guépard, hyène, autruche, vautour, calao, gazelle
-- Fait (planche 2) : chacal, serval, oryx, marabout, pintade, porc-épic, baobab, termitière
-
-### À générer pour la forêt
-
-- Fait : fond (clairière d'automne)
-- Fait (planche 1) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
-- Fait (planche 2) : ours, loup, biche, castor, chouette, chêne, feuilles mortes, mûres
-- Planche 3 (5 × 2) : lynx, chevreuil, marcassin, lapin, pic-vert, corbeau, couleuvre, salamandre, cabane, feu de camp
+Les planches et images d'origine ne sont pas gardées dans le dépôt.
