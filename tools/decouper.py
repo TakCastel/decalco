@@ -15,7 +15,9 @@ from scipy import ndimage
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAX = 256
-ALPHA_MIN = 24   # ignore les pixels presque transparents (halo, bruit) pour repérer les formes
+ALPHA_MIN = 24   # en dessous, pixel ignoré pour le recadrage (bruit du fond)
+ALPHA_SOLID = 128  # partie bien opaque : sert à séparer les stickers dont les halos se touchent
+HALO = 8         # en pixels : le halo autour de chaque forme lui est rendu
 MIN_PART = 300   # en pixels : en dessous, c'est une poussière du fond, pas un bout de sticker
 
 
@@ -31,7 +33,7 @@ def main():
     # tenant, puis on la range dans la case qui contient son centre.
     # Les petits morceaux détachés (assez gros pour ne pas être de la poussière)
     # suivent la case de leur centre.
-    solid = px[..., 3] >= ALPHA_MIN
+    solid = px[..., 3] >= ALPHA_SOLID
     labels, n = ndimage.label(solid)
     sizes = ndimage.sum(solid, labels, range(1, n + 1))
     centres = ndimage.center_of_mass(solid, labels, range(1, n + 1))
@@ -44,7 +46,7 @@ def main():
         best.setdefault(cell, []).append(k)
     # Le halo semi-transparent autour de chaque forme lui revient.
     near, (iy, ix) = ndimage.distance_transform_edt(labels == 0, return_indices=True)
-    labels = np.where((near <= 3) & (px[..., 3] > 0), labels[iy, ix], 0)
+    labels = np.where((near <= HALO) & (px[..., 3] > 0), labels[iy, ix], 0)
     out = ROOT / "assets" / "stickers" / theme
     out.mkdir(parents=True, exist_ok=True)
     for i, id_ in enumerate(ids):
@@ -56,7 +58,7 @@ def main():
         mask = np.isin(labels, best[i])
         part = px.copy()
         part[~mask] = 0  # efface ce qui appartient aux voisins
-        ys, xs = np.nonzero(mask & solid)
+        ys, xs = np.nonzero(mask & (px[..., 3] >= ALPHA_MIN))
         cell = Image.fromarray(part[ys.min():ys.max() + 1, xs.min():xs.max() + 1])
         cell.thumbnail((MAX, MAX), Image.LANCZOS)
         dest = out / f"{id_}.webp"

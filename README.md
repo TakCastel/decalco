@@ -54,4 +54,4 @@ Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) com
 ### À générer pour la savane
 
 - Fait (planche 1) : suricate, babouin, guépard, hyène, autruche, vautour, calao, gazelle
-- Planche 2 : chacal, serval, oryx, marabout, pintade, porc-épic, baobab, termitière
+- Fait (planche 2) : chacal, serval, oryx, marabout, pintade, porc-épic, baobab, termitière
