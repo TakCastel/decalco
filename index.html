@@ -498,6 +498,18 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
+<div class="modal" id="confirmSnap" hidden role="dialog" aria-modal="true" aria-labelledby="snapTitle">
+  <div class="card">
+    <div class="stamp" aria-hidden="true">📷</div>
+    <h2 id="snapTitle">Garder ta page ?</h2>
+    <p id="snapText">On va faire une image de ta page.</p>
+    <div class="row">
+      <button class="btn" id="btnSnapNo" type="button">Non, pas maintenant</button>
+      <button class="btn primary" id="btnSnapYes" type="button">Oui, garder ma page</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="themeModal" hidden role="dialog" aria-modal="true" aria-labelledby="themeTitle">
   <div class="card wide">
     <h2 id="themeTitle">Quel paysage ?</h2>
@@ -1618,7 +1630,7 @@ button{font:inherit;color:inherit}
       el.hidden = true;
       if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
     }
-    [$("confirmNew"), $("doneModal"), $("themeModal")].forEach(function (m) {
+    [$("confirmNew"), $("doneModal"), $("themeModal"), $("confirmSnap")].forEach(function (m) {
       m.addEventListener("keydown", function (e) {
         if (e.key === "Escape") { closeModal(m); return; }
         if (e.key === "Tab") {  // tiny focus trap
@@ -1657,6 +1669,7 @@ button{font:inherit;color:inherit}
       x.fillStyle = "#fffaf0"; x.fillText(label, tx, ty);
       return c;
     }
+    function willShare() { return window.matchMedia("(pointer: coarse)").matches && !!(navigator.share && navigator.canShare); }
     function snapFail() { setHint("Oups, l'image n'a pas pu être enregistrée ici.", true); }
     // Everything runs straight from the tap: iOS only opens the share sheet inside the gesture.
     function snap() {
@@ -1670,8 +1683,7 @@ button{font:inherit;color:inherit}
       } catch (e) { snapFail(); return; }   // e.g. page opened as a file: the canvas is locked
       var name = snapName(), file = null;
       try { file = new File([blob], name, { type: "image/png" }); } catch (e) { file = null; }
-      var touch = window.matchMedia("(pointer: coarse)").matches;
-      if (touch && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (willShare() && file && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file], title: "Ma page Décalco" }).catch(function (e) {
           if (e && e.name !== "AbortError") download(blob, name);
         });
@@ -1684,8 +1696,17 @@ button{font:inherit;color:inherit}
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
       setHint("📷 Ta page est enregistrée : <b>" + name + "</b>", true);
     }
-    $("btnSnap").addEventListener("click", snap);
-    $("btnDoneSnap").addEventListener("click", function () { closeModal($("doneModal")); snap(); });
+    function askSnap() {
+      if (!placements.length) { setHint("Pose d'abord une décalco sur la page !", true); return; }
+      $("snapText").textContent = "On va faire une image de ta page. " + (willShare()
+        ? "Tu pourras l'envoyer ou la ranger dans tes photos."
+        : "Elle sera téléchargée sur l'ordinateur.");
+      openModal($("confirmSnap"), "btnSnapNo");
+    }
+    $("btnSnap").addEventListener("click", askSnap);
+    $("btnDoneSnap").addEventListener("click", function () { closeModal($("doneModal")); askSnap(); });
+    $("btnSnapNo").addEventListener("click", function () { closeModal($("confirmSnap")); });
+    $("btnSnapYes").addEventListener("click", function () { closeModal($("confirmSnap")); snap(); });
 
     /* ---------------- paysages ---------------- */
     var themeIds = Object.keys(THEMES);
