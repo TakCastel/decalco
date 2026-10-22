@@ -19,6 +19,8 @@ ALPHA_MIN = 24   # en dessous, pixel ignoré pour le recadrage (bruit du fond)
 ALPHA_SOLID = 128  # partie bien opaque : sert à séparer les stickers dont les halos se touchent
 HALO = 8         # en pixels : le halo autour de chaque forme lui est rendu
 MIN_PART = 300   # en pixels : en dessous, c'est une poussière du fond, pas un bout de sticker
+MIN_CORE = 60    # en pixels : plus petit morceau de dessin coloré qui compte
+WHITE = 225      # au-dessus (sur les trois canaux), c'est le blanc du contour
 
 
 def main():
@@ -29,24 +31,34 @@ def main():
         sys.exit(f"{len(ids)} ids pour {cols * rows} cases")
     im = Image.open(sheet).convert("RGBA")
     px = np.array(im)
-    # Les dessins débordent souvent de leur case : on repère chaque forme d'un seul
-    # tenant, puis on la range dans la case qui contient son centre.
-    # Les petits morceaux détachés (assez gros pour ne pas être de la poussière)
-    # suivent la case de leur centre.
+    # Les dessins débordent souvent de leur case : on repère chaque dessin coloré
+    # (sans le contour blanc), on le range dans la case qui contient son centre,
+    # puis chaque pixel va au dessin le plus proche. Deux stickers dont les contours
+    # blancs se touchent sont ainsi séparés à mi-chemin.
     solid = px[..., 3] >= ALPHA_SOLID
-    labels, n = ndimage.label(solid)
-    sizes = ndimage.sum(solid, labels, range(1, n + 1))
-    centres = ndimage.center_of_mass(solid, labels, range(1, n + 1))
+    lab, n = ndimage.label(solid)
+    sizes = ndimage.sum(solid, lab, range(1, n + 1))
+    solid = np.isin(lab, 1 + np.nonzero(sizes >= MIN_PART)[0])   # sans la poussière
+    lab, n = ndimage.label(solid)
+    core = solid & (px[..., :3].min(axis=2) < WHITE)
+    # un sticker tout blanc (nuage…) n'a pas de dessin coloré : il compte en entier
+    has_core = ndimage.maximum(core, lab, range(1, n + 1))
+    core |= np.isin(lab, 1 + np.nonzero(np.asarray(has_core) == 0)[0])
+    clab, cn = ndimage.label(core)
+    csizes = ndimage.sum(core, clab, range(1, cn + 1))
+    centres = ndimage.center_of_mass(core, clab, range(1, cn + 1))
     cw, ch = im.width / cols, im.height / rows
-    best = {}
-    for k, ((cy, cx), size) in enumerate(zip(centres, sizes), start=1):
-        if size < MIN_PART:
-            continue
-        cell = int(cy // ch) * cols + int(cx // cw)
-        best.setdefault(cell, []).append(k)
-    # Le halo semi-transparent autour de chaque forme lui revient.
-    near, (iy, ix) = ndimage.distance_transform_edt(labels == 0, return_indices=True)
-    labels = np.where((near <= HALO) & (px[..., 3] > 0), labels[iy, ix], 0)
+    cell_of = np.full(cn + 1, -1)
+    for k, ((cy, cx), size) in enumerate(zip(centres, csizes), start=1):
+        if size >= MIN_CORE:
+            cell_of[k] = int(cy // ch) * cols + int(cx // cw)
+    clab[cell_of[clab] < 0] = 0
+    _, (iy, ix) = ndimage.distance_transform_edt(clab == 0, return_indices=True)
+    cells = cell_of[clab[iy, ix]]
+    # le halo semi-transparent autour de chaque forme lui revient, pas les voiles au loin
+    near = ndimage.distance_transform_edt(~solid) <= HALO
+    cells = np.where(near & (px[..., 3] > 0), cells, -1)
+    best = set(np.unique(cells[cells >= 0]).tolist())
     out = ROOT / "assets" / "stickers" / theme
     out.mkdir(parents=True, exist_ok=True)
     for i, id_ in enumerate(ids):
@@ -55,7 +67,7 @@ def main():
         if i not in best:
             print(f"!! case {i + 1} ({id_}) vide", file=sys.stderr)
             continue
-        mask = np.isin(labels, best[i])
+        mask = cells == i
         part = px.copy()
         part[~mask] = 0  # efface ce qui appartient aux voisins
         ys, xs = np.nonzero(mask & (px[..., 3] >= ALPHA_MIN))
