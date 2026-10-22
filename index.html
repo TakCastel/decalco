@@ -94,7 +94,7 @@ button{font:inherit;color:inherit}
   max-width:1500px;margin:0 auto;
 }
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:2px 0 8px}
-.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0;flex-shrink:0}
 .logo{font-family:var(--font-display);font-weight:700;font-size:clamp(24px,4vw,32px);color:var(--accent);letter-spacing:.01em;line-height:1;
   text-shadow:1px 1px 0 var(--paper),2px 2px 0 rgba(0,0,0,.08)}
 .sub{font-family:var(--font-display);font-weight:500;color:var(--ink-soft);font-size:15px;white-space:nowrap}
@@ -346,6 +346,7 @@ button{font:inherit;color:inherit}
 @media (max-width:600px){
   .top{padding:0 0 6px;flex-wrap:nowrap}
   .logo{font-size:23px}
+  .cnt-long{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .sub{display:none}
   .lbl3{display:none}
   .counter{font-size:12px;padding:5px 8px}
@@ -353,11 +354,16 @@ button{font:inherit;color:inherit}
   .top-right{gap:6px}
   .top .btn.small{min-height:34px;padding:4px 9px;font-size:13px}
 }
+@media (max-width:380px){
+  .lbl4{display:none}
+  .top .btn.small{padding:4px 7px}
+}
 /* phone landscape: less chrome around the page */
 @media (orientation:landscape) and (max-height:560px){
   .app{padding-top:max(4px,env(safe-area-inset-top,0px));padding-bottom:max(4px,env(safe-area-inset-bottom,0px))}
   .top{padding:0 0 4px}
   .logo{font-size:22px}
+  .cnt-long{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .sub{display:none}
   .counter{font-size:12px;padding:4px 8px}
   .top .btn.small{min-height:32px;padding:3px 9px;font-size:13px}
@@ -424,7 +430,7 @@ button{font:inherit;color:inherit}
       <span class="badge" id="doneBadge" hidden>★ Terminée !</span>
       <span class="counter" id="counter" aria-live="polite">0 / 0 décalco posée</span>
       <button class="btn small" id="btnTheme" type="button" aria-label="Changer de paysage" title="Changer de paysage" hidden>🗺️<span class="lbl3"> Paysage</span></button>
-      <button class="btn small" id="btnNew" type="button">Nouvelle page</button>
+      <button class="btn small" id="btnNew" type="button" aria-label="Nouvelle page">Nouvelle<span class="lbl4"> page</span></button>
     </div>
   </header>
 
@@ -941,7 +947,7 @@ button{font:inherit;color:inherit}
         b.setAttribute("aria-label", a.name + (used ? " (déjà posée)" : taken ? " (en cours)" : " — placer sur la page"));
       });
       var n = placements.length;
-      counter.textContent = n + " / " + TOTAL + (n > 1 ? " décalcos posées" : " décalco posée");
+      counter.innerHTML = n + " / " + TOTAL + '<span class="cnt-long">' + (n > 1 ? " décalcos posées" : " décalco posée") + "</span>";
       var left = TOTAL - n;
       sheetLeft.textContent = left > 0 ? (left > 1 ? left + " restantes" : "1 restante") : "vide !";
       var done = n >= TOTAL;
