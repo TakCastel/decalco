@@ -15,7 +15,8 @@ from scipy import ndimage
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAX = 256
-ALPHA_MIN = 24  # ignore les pixels presque transparents (halo, bruit) pour le recadrage
+ALPHA_MIN = 24   # ignore les pixels presque transparents (halo, bruit) pour repérer les formes
+MIN_PART = 300   # en pixels : en dessous, c'est une poussière du fond, pas un bout de sticker
 
 
 def main():
@@ -28,17 +29,22 @@ def main():
     px = np.array(im)
     # Les dessins débordent souvent de leur case : on repère chaque forme d'un seul
     # tenant, puis on la range dans la case qui contient son centre.
+    # Les petits morceaux détachés (assez gros pour ne pas être de la poussière)
+    # suivent la case de leur centre.
     solid = px[..., 3] >= ALPHA_MIN
-    labels, n = ndimage.label(ndimage.binary_dilation(solid, iterations=4))
-    labels[px[..., 3] == 0] = 0
+    labels, n = ndimage.label(solid)
     sizes = ndimage.sum(solid, labels, range(1, n + 1))
     centres = ndimage.center_of_mass(solid, labels, range(1, n + 1))
     cw, ch = im.width / cols, im.height / rows
     best = {}
     for k, ((cy, cx), size) in enumerate(zip(centres, sizes), start=1):
+        if size < MIN_PART:
+            continue
         cell = int(cy // ch) * cols + int(cx // cw)
-        if size > best.get(cell, (0, 0))[1]:
-            best[cell] = (k, size)
+        best.setdefault(cell, []).append(k)
+    # Le halo semi-transparent autour de chaque forme lui revient.
+    near, (iy, ix) = ndimage.distance_transform_edt(labels == 0, return_indices=True)
+    labels = np.where((near <= 3) & (px[..., 3] > 0), labels[iy, ix], 0)
     out = ROOT / "assets" / "stickers" / theme
     out.mkdir(parents=True, exist_ok=True)
     for i, id_ in enumerate(ids):
@@ -47,7 +53,7 @@ def main():
         if i not in best:
             print(f"!! case {i + 1} ({id_}) vide", file=sys.stderr)
             continue
-        mask = labels == best[i][0]
+        mask = np.isin(labels, best[i])
         part = px.copy()
         part[~mask] = 0  # efface ce qui appartient aux voisins
         ys, xs = np.nonzero(mask & solid)
