@@ -446,6 +446,7 @@ button{font:inherit;color:inherit}
             <button class="zbtn" id="btnZoomIn" type="button" aria-label="Zoomer" title="Zoomer">+</button>
             <button class="zbtn" id="btnZoomOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
             <button class="zbtn" id="btnZoomFit" type="button" aria-label="Vue par défaut" title="Vue par défaut"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+            <button class="zbtn" id="btnSnap" type="button" aria-label="Garder ma page en image" title="Garder ma page en image"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9.5h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
             <button class="zbtn" id="btnHelp" type="button" aria-label="Afficher l'aide" title="Afficher l'aide" hidden>?</button>
           </div>
         </div>
@@ -513,6 +514,7 @@ button{font:inherit;color:inherit}
     <p id="doneText">Toutes les décalcos sont posées. Quelle belle savane !</p>
     <div class="row">
       <button class="btn primary" id="btnDoneOk" type="button">Admirer ma page</button>
+      <button class="btn" id="btnDoneSnap" type="button">📷 Garder ma page</button>
       <button class="btn" id="btnDoneNew" type="button">Nouvelle page</button>
     </div>
   </div>
@@ -1631,6 +1633,60 @@ button{font:inherit;color:inherit}
     $("btnNewNo").addEventListener("click", function () { closeModal($("confirmNew")); });
     $("btnNewYes").addEventListener("click", function () { closeModal($("confirmNew")); newPage(); });
     $("btnDoneOk").addEventListener("click", function () { closeModal($("doneModal")); });
+    /* ---------------- garder sa page en image ---------------- */
+    // The scene at full size (no zoom, no selection), with a small signature, as a PNG.
+    // Phones/tablets get the share sheet (Photos, messages…); computers get a download.
+    function snapName() {
+      var d = new Date(), z = function (n) { return (n < 10 ? "0" : "") + n; };
+      return "decalco-" + THEME + "-" + d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + ".png";
+    }
+    function drawSnap() {
+      var c = document.createElement("canvas");
+      c.width = SC.width; c.height = SC.height;
+      var x = c.getContext("2d");
+      x.imageSmoothingQuality = "high";
+      if (imgReady(sceneImg)) x.drawImage(sceneImg, 0, 0, SC.width, SC.height);
+      else { x.fillStyle = "#e9d7b0"; x.fillRect(0, 0, SC.width, SC.height); }
+      placements.forEach(function (p) { drawPrinted(x, p, 1); });
+      var fs = Math.round(SC.height * 0.034);
+      x.font = "700 " + fs + "px Fredoka, 'Trebuchet MS', sans-serif";
+      x.textAlign = "right"; x.textBaseline = "bottom";
+      x.lineJoin = "round"; x.lineWidth = fs * 0.22; x.strokeStyle = "rgba(60,35,15,.55)";
+      var label = "Décalco · " + TH.the, tx = SC.width - fs * 0.8, ty = SC.height - fs * 0.6;
+      x.strokeText(label, tx, ty);
+      x.fillStyle = "#fffaf0"; x.fillText(label, tx, ty);
+      return c;
+    }
+    function snapFail() { setHint("Oups, l'image n'a pas pu être enregistrée ici.", true); }
+    // Everything runs straight from the tap: iOS only opens the share sheet inside the gesture.
+    function snap() {
+      if (!placements.length) { setHint("Pose d'abord une décalco sur la page !", true); return; }
+      var blob;
+      try {
+        var url = drawSnap().toDataURL("image/png"), bin = atob(url.slice(url.indexOf(",") + 1));
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        blob = new Blob([bytes], { type: "image/png" });
+      } catch (e) { snapFail(); return; }   // e.g. page opened as a file: the canvas is locked
+      var name = snapName(), file = null;
+      try { file = new File([blob], name, { type: "image/png" }); } catch (e) { file = null; }
+      var touch = window.matchMedia("(pointer: coarse)").matches;
+      if (touch && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: "Ma page Décalco" }).catch(function (e) {
+          if (e && e.name !== "AbortError") download(blob, name);
+        });
+      } else download(blob, name);
+    }
+    function download(blob, name) {
+      var url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      setHint("📷 Ta page est enregistrée : <b>" + name + "</b>", true);
+    }
+    $("btnSnap").addEventListener("click", snap);
+    $("btnDoneSnap").addEventListener("click", function () { closeModal($("doneModal")); snap(); });
+
     /* ---------------- paysages ---------------- */
     var themeIds = Object.keys(THEMES);
     function storedCount(id) {

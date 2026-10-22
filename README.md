@@ -6,6 +6,7 @@ Un jeu de décalcomanies pour enfants : on choisit un sticker sur la planche, on
 - On peut décoller une décalco posée, la passer devant ou derrière les autres.
 - Sur téléphone : grande scène avec zoom et déplacement, planche en carrousel en bas.
 - La page est enregistrée dans le navigateur.
+- Le bouton 📷 garde la page en image (PNG) : menu de partage sur téléphone, téléchargement sur ordinateur.
 
 ## Jouer
 
