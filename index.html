@@ -190,7 +190,11 @@ button{font:inherit;color:inherit}
 .handle{position:absolute;right:-14px;bottom:-14px;width:30px;height:30px;border-radius:50%;
   background:var(--accent);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:nwse-resize;touch-action:none}
 .handle::after{content:"";position:absolute;inset:7px;border-right:2px solid #fff;border-bottom:2px solid #fff}
-.film.rubmode .handle,.film.lifting .handle,.film.settle .handle{display:none}
+.flipper{position:absolute;left:-15px;bottom:-15px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--accent);color:#fff;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;touch-action:none}
+.flipper .ic{width:16px;height:16px;stroke-width:2.6;pointer-events:none}
+.film.rubmode .handle,.film.lifting .handle,.film.settle .handle,
+.film.rubmode .flipper,.film.lifting .flipper,.film.settle .flipper,.film.peeling .flipper{display:none}
 .film.settle{animation:press .55s cubic-bezier(.3,1.4,.5,1) both}
 .film.settle::before{animation:peel .6s ease-in forwards}
 .film.settle .art img{opacity:0;transition:opacity .3s}
@@ -448,6 +452,7 @@ button{font:inherit;color:inherit}
                aria-label="Décalco à placer. Flèches pour déplacer, + et − pour la taille.">
             <div class="art" id="art"><img id="filmImg" alt="" draggable="false"><canvas id="ink"></canvas></div>
             <div class="handle" id="handle" aria-hidden="true" title="Agrandir / rétrécir"></div>
+            <div class="flipper" id="flipper" aria-hidden="true" title="Retourner"><svg class="ic" viewBox="0 0 24 24"><path d="m3 7 5 5-5 5V7"/><path d="m21 7-5 5 5 5V7"/><path d="M12 20v2"/><path d="M12 14v2"/><path d="M12 8v2"/><path d="M12 2v2"/></svg></div>
           </div>
           <div class="rubber" id="rubber" aria-hidden="true"></div>
           <div class="viewbar h" id="vbarH" aria-hidden="true"><i></i></div>
@@ -1421,7 +1426,9 @@ button{font:inherit;color:inherit}
           gesture = { type: "pinch", d0: Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) || 1, h0: pending.h,
             mx: (ps[0].x + ps[1].x) / 2, my: (ps[0].y + ps[1].y) / 2, x0: pending.x, y0: pending.y };
         } else if (pointers.size === 1) {
-          if (e.target === handle) {
+          if (e.target.closest && e.target.closest("#flipper")) {
+            pending.flip = !pending.flip; layoutPending();   // a tap on the round button turns it over
+          } else if (e.target === handle) {
             var r = film.getBoundingClientRect();
             var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
             gesture = { type: "handle", cx: cx, cy: cy, d0: Math.hypot(e.clientX - cx, e.clientY - cy) || 1, h0: pending.h };
