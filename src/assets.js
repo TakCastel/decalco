@@ -134,7 +134,15 @@ window.STICKERS = [
   { id: "bird-of-paradise", theme: "jungle", name: "Oiseau de paradis", src: "assets/stickers/jungle/bird-of-paradise.webp", w: 211, h: 256, scale: 0.6 },
   { id: "poison-frog", theme: "jungle", name: "Grenouille rouge", src: "assets/stickers/jungle/poison-frog.webp", w: 256, h: 205, scale: 0.4 },
   { id: "palm", theme: "jungle", name: "Palmier", src: "assets/stickers/jungle/palm.webp", w: 192, h: 256, scale: 1.6 },
+  { id: "banana-tree", theme: "jungle", name: "Bananier", src: "assets/stickers/jungle/banana-tree.webp", w: 179, h: 256, scale: 1.3 },
+  { id: "treehouse", theme: "jungle", name: "Cabane dans les arbres", src: "assets/stickers/jungle/treehouse.webp", w: 207, h: 256, scale: 1.6 },
+  { id: "temple", theme: "jungle", name: "Temple", src: "assets/stickers/jungle/temple.webp", w: 222, h: 256, scale: 1.5 },
+  { id: "canoe", theme: "jungle", name: "Pirogue", src: "assets/stickers/jungle/canoe.webp", w: 256, h: 112, scale: 1.0 },
   { id: "flower", theme: "jungle", name: "Fleur", src: "assets/stickers/jungle/flower.webp", w: 256, h: 253, scale: 0.4 },
+  { id: "bamboo", theme: "jungle", name: "Bambous", src: "assets/stickers/jungle/bamboo.webp", w: 192, h: 256, scale: 1.2 },
+  { id: "water-lily", theme: "jungle", name: "Nénuphar", src: "assets/stickers/jungle/water-lily.webp", w: 256, h: 179, scale: 0.7 },
+  { id: "pineapple", theme: "jungle", name: "Ananas", src: "assets/stickers/jungle/pineapple.webp", w: 199, h: 256, scale: 0.4 },
+  { id: "coconut", theme: "jungle", name: "Noix de coco", src: "assets/stickers/jungle/coconut.webp", w: 233, h: 256, scale: 0.35 },
 
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
