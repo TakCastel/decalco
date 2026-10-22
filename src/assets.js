@@ -110,7 +110,7 @@ window.STICKERS = [
   { id: "parrot", theme: "jungle", name: "Perroquet", src: "assets/stickers/jungle/parrot.webp", w: 182, h: 256, scale: 0.6 },
   { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },
   { id: "panther", theme: "jungle", name: "Panthère noire", src: "assets/stickers/jungle/panther.webp", w: 256, h: 217, scale: 1.0 },
-  { id: "jaguar", theme: "jungle", name: "Jaguar", src: "assets/stickers/jungle/jaguar.webp", w: 256, h: 189, scale: 1.0 },
+  { id: "jaguar", theme: "jungle", name: "Jaguar", src: "assets/stickers/jungle/jaguar.webp", w: 256, h: 191, scale: 1.0 },
   { id: "toucan", theme: "jungle", name: "Toucan", src: "assets/stickers/jungle/toucan.webp", w: 256, h: 236, scale: 0.6 },
   { id: "caterpillar", theme: "jungle", name: "Chenille", src: "assets/stickers/jungle/caterpillar.webp", w: 256, h: 221, scale: 0.4 },
   { id: "boa", theme: "jungle", name: "Boa", src: "assets/stickers/jungle/boa.webp", w: 256, h: 216, scale: 0.7 },
