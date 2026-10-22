@@ -105,9 +105,18 @@ window.STICKERS = [
 
   // Jungle : animaux du plus connu au moins connu, puis le décor
   { id: "monkey", theme: "jungle", name: "Singe", src: "assets/stickers/jungle/monkey.webp", w: 209, h: 256, scale: 0.7 },
+  { id: "tiger", theme: "jungle", name: "Tigre", src: "assets/stickers/jungle/tiger.webp", w: 256, h: 224, scale: 1.1 },
   { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },
   { id: "parrot", theme: "jungle", name: "Perroquet", src: "assets/stickers/jungle/parrot.webp", w: 182, h: 256, scale: 0.6 },
+  { id: "panther", theme: "jungle", name: "Panthère noire", src: "assets/stickers/jungle/panther.webp", w: 256, h: 217, scale: 1.0 },
+  { id: "toucan", theme: "jungle", name: "Toucan", src: "assets/stickers/jungle/toucan.webp", w: 256, h: 236, scale: 0.6 },
+  { id: "boa", theme: "jungle", name: "Boa", src: "assets/stickers/jungle/boa.webp", w: 256, h: 216, scale: 0.7 },
+  { id: "sloth", theme: "jungle", name: "Paresseux", src: "assets/stickers/jungle/sloth.webp", w: 256, h: 192, scale: 0.8 },
+  { id: "chameleon", theme: "jungle", name: "Caméléon", src: "assets/stickers/jungle/chameleon.webp", w: 256, h: 213, scale: 0.45 },
   { id: "orangutan", theme: "jungle", name: "Orang-outan", src: "assets/stickers/jungle/orangutan.webp", w: 239, h: 256, scale: 0.9 },
+  { id: "lemur", theme: "jungle", name: "Lémurien", src: "assets/stickers/jungle/lemur.webp", w: 248, h: 256, scale: 0.6 },
+  { id: "capybara", theme: "jungle", name: "Capybara", src: "assets/stickers/jungle/capybara.webp", w: 256, h: 242, scale: 0.8 },
+  { id: "poison-frog", theme: "jungle", name: "Grenouille rouge", src: "assets/stickers/jungle/poison-frog.webp", w: 256, h: 205, scale: 0.4 },
   { id: "palm", theme: "jungle", name: "Palmier", src: "assets/stickers/jungle/palm.webp", w: 192, h: 256, scale: 1.6 },
   { id: "flower", theme: "jungle", name: "Fleur", src: "assets/stickers/jungle/flower.webp", w: 256, h: 253, scale: 0.4 },
 

@@ -52,8 +52,9 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
 4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
 
 > Garde exactement le même style que l'image jointe (trait, couleurs, contour blanc).
-> Planche de stickers pour enfants, {X} colonnes × {Y} lignes, un sujet par case, bien espacés, aucun ne touche son voisin, fond transparent (PNG).
-> Style : dessin cartoon arrondi, contour blanc épais autour de chaque sticker, couleurs douces et chaudes, vue de trois quarts, corps entier.
-> Sujets, dans l'ordre, avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
+> Planche de stickers pour enfants sur fond transparent : vrai canal alpha, sans damier, sans ombre, sans halo ni voile autour des stickers.
+> Grille stricte de {X} colonnes × {Y} lignes : cases toutes de la même taille, un seul sujet centré dans chaque case, avec au moins 10 % de vide autour ; aucun sujet ne déborde de sa case ni ne touche son voisin.
+> Style lisse : dessin cartoon vectoriel arrondi, aplats de couleur nets avec un léger dégradé, sans texture de fourrure ni coups de pinceau ; fin trait sombre autour du dessin, puis contour blanc épais et régulier autour de chaque sticker. Couleurs douces et chaudes, vue de trois quarts, corps entier.
+> Sujets, dans l'ordre (de gauche à droite, ligne par ligne), avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
 
 Les planches et images d'origine ne sont pas gardées dans le dépôt.
