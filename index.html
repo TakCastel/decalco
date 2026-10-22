@@ -347,6 +347,7 @@ button{font:inherit;color:inherit}
   .top{padding:0 0 6px;flex-wrap:nowrap}
   .logo{font-size:23px}
   .sub{display:none}
+  .lbl3{display:none}
   .counter{font-size:12px;padding:5px 8px}
   .badge{font-size:12px;padding:4px 7px}
   .top-right{gap:6px}
@@ -389,6 +390,16 @@ button{font:inherit;color:inherit}
 .card p{margin:0 0 16px;font-weight:600;color:var(--ink-soft)}
 .card .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .stamp{font-size:44px;line-height:1;margin-bottom:6px}
+.card.wide{max-width:520px}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:0 0 16px}
+.theme{display:flex;flex-direction:column;gap:6px;padding:6px 6px 8px;border-radius:14px;border:2px solid var(--btn-edge);
+  background:var(--btn);color:var(--ink);font:inherit;font-weight:800;cursor:pointer;box-shadow:0 2px 0 var(--btn-edge)}
+.theme:hover{transform:translateY(-1px)}
+.theme[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.theme img,.theme .ph{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:9px;background:var(--accent-soft)}
+.theme .ph{display:flex;align-items:center;justify-content:center;font-size:30px}
+.theme .tname{font-family:var(--font-display);font-size:18px;line-height:1.1}
+.theme .tinfo{font-size:12px;font-weight:700;color:var(--ink-soft)}
 @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:49;overflow:hidden}
 .confetti span{position:absolute;top:-40px;font-size:24px;animation:fall 2.4s ease-in forwards}
@@ -407,11 +418,12 @@ button{font:inherit;color:inherit}
   <header class="top">
     <div class="brand">
       <span class="logo">Décalco</span>
-      <span class="sub">Carnet n°1 · La savane</span>
+      <span class="sub" id="sub">Carnet n°1 · La savane</span>
     </div>
     <div class="top-right">
       <span class="badge" id="doneBadge" hidden>★ Terminée !</span>
       <span class="counter" id="counter" aria-live="polite">0 / 0 décalco posée</span>
+      <button class="btn small" id="btnTheme" type="button" aria-label="Changer de paysage" title="Changer de paysage" hidden>🗺️<span class="lbl3"> Paysage</span></button>
       <button class="btn small" id="btnNew" type="button">Nouvelle page</button>
     </div>
   </header>
@@ -485,11 +497,20 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
+<div class="modal" id="themeModal" hidden role="dialog" aria-modal="true" aria-labelledby="themeTitle">
+  <div class="card wide">
+    <h2 id="themeTitle">Quel paysage ?</h2>
+    <p>Chaque paysage garde ses décalcos.</p>
+    <div class="themes" id="themeList"></div>
+    <div class="row"><button class="btn" id="btnThemeNo" type="button">Fermer</button></div>
+  </div>
+</div>
+
 <div class="modal" id="doneModal" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
   <div class="card">
     <div class="stamp" aria-hidden="true">🏆</div>
     <h2 id="doneTitle">Page terminée !</h2>
-    <p>Toutes les décalcos sont posées. Quelle belle savane !</p>
+    <p id="doneText">Toutes les décalcos sont posées. Quelle belle savane !</p>
     <div class="row">
       <button class="btn primary" id="btnDoneOk" type="button">Admirer ma page</button>
       <button class="btn" id="btnDoneNew" type="button">Nouvelle page</button>
@@ -518,7 +539,9 @@ button{font:inherit;color:inherit}
     var AN = window.ANIMALS.slice();
     var byId = new Map(AN.map(function (a) { return [a.id, a]; }));
     var TOTAL = AN.length;
-    var STORE = "decalco-savane-v1";
+    var THEMES = window.THEMES || {}, THEME = window.THEME || "savane";
+    var TH = THEMES[THEME] || { name: "Savane", the: "la savane" };
+    var STORE = "decalco-" + THEME + "-v1";
     var RUB_TRAVEL = 6;        // sticker sizes of rubbing needed
     var DEFAULT_H = 0.18;      // fraction of scene height for scale=1
     var MIN_H = 0.05, MAX_H = 0.75;
@@ -1593,7 +1616,7 @@ button{font:inherit;color:inherit}
       el.hidden = true;
       if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
     }
-    [$("confirmNew"), $("doneModal")].forEach(function (m) {
+    [$("confirmNew"), $("doneModal"), $("themeModal")].forEach(function (m) {
       m.addEventListener("keydown", function (e) {
         if (e.key === "Escape") { closeModal(m); return; }
         if (e.key === "Tab") {  // tiny focus trap
@@ -1608,6 +1631,46 @@ button{font:inherit;color:inherit}
     $("btnNewNo").addEventListener("click", function () { closeModal($("confirmNew")); });
     $("btnNewYes").addEventListener("click", function () { closeModal($("confirmNew")); newPage(); });
     $("btnDoneOk").addEventListener("click", function () { closeModal($("doneModal")); });
+    /* ---------------- paysages ---------------- */
+    var themeIds = Object.keys(THEMES);
+    function storedCount(id) {
+      try { var d = JSON.parse(window.localStorage.getItem("decalco-" + id + "-v1")); return d && Array.isArray(d.placements) ? d.placements.length : 0; }
+      catch (e) { return 0; }
+    }
+    function totalFor(id) { return (window.STICKERS || []).filter(function (s) { return s.theme === id || s.theme === "commun"; }).length; }
+    function goTheme(id) {
+      if (id === THEME) { closeModal($("themeModal")); return; }
+      save();
+      try { window.localStorage.setItem("decalco-theme", id); } catch (e) { /* the address keeps it */ }
+      var u = new URL(window.location.href);
+      u.searchParams.set("theme", id);
+      window.location.href = u.toString();
+    }
+    function buildThemes() {
+      var list = $("themeList");
+      list.innerHTML = "";
+      themeIds.forEach(function (id) {
+        var t = THEMES[id], b = document.createElement("button");
+        b.type = "button"; b.className = "theme"; b.id = "theme-" + id;
+        b.setAttribute("aria-current", id === THEME ? "true" : "false");
+        var img = document.createElement("img");
+        img.alt = ""; img.loading = "lazy"; img.decoding = "async"; img.src = t.scene.src;
+        img.onerror = function () { var f = document.createElement("span"); f.className = "ph"; f.textContent = "🖼️"; img.replaceWith(f); };
+        var n = id === THEME ? placements.length : storedCount(id), tot = totalFor(id);
+        var nm = document.createElement("span"); nm.className = "tname"; nm.textContent = t.name;
+        var inf = document.createElement("span"); inf.className = "tinfo";
+        inf.textContent = (id === THEME ? "ici · " : "") + n + " / " + tot + " posées";
+        b.append(img, nm, inf);
+        b.addEventListener("click", function () { goTheme(id); });
+        list.appendChild(b);
+      });
+    }
+    $("sub").textContent = "Carnet · " + TH.the.charAt(0).toUpperCase() + TH.the.slice(1);
+    $("doneText").textContent = "Toutes les décalcos sont posées. " + (TH.bravo || "Bravo !");
+    canvas.setAttribute("aria-label", "La page du carnet : " + TH.the + " avec les décalcomanies déjà posées");
+    $("btnTheme").hidden = themeIds.length < 2;
+    $("btnTheme").addEventListener("click", function () { buildThemes(); openModal($("themeModal"), "theme-" + THEME); });
+    $("btnThemeNo").addEventListener("click", function () { closeModal($("themeModal")); });
     $("btnDoneNew").addEventListener("click", function () { closeModal($("doneModal")); openModal($("confirmNew"), "btnNewNo"); });
 
     function newPage() {
@@ -1622,7 +1685,7 @@ button{font:inherit;color:inherit}
     function celebrate() {
       if (!mqReduce.matches) {
         var c = document.createElement("div"); c.className = "confetti"; c.setAttribute("aria-hidden", "true");
-        var bits = ["★", "✦", "🦁", "🦒", "🐘", "✿", "★", "🦓"];
+        var em = TH.confetti || ["✿", "★"], bits = ["★", "✦", em[0], em[1 % em.length], em[2 % em.length], "✿", "★", em[3 % em.length]];
         for (var i = 0; i < 26; i++) {
           var sp = document.createElement("span");
           sp.textContent = bits[i % bits.length];

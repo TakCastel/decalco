@@ -13,8 +13,12 @@ def data_uri(rel):
 
 def inline_assets(js):
     # Swap every "assets/..." image path for an embedded data URI.
-    return re.sub(r'(["\'])(assets/[^"\']+\.(?:png|jpe?g|webp))\1',
-                  lambda m: m.group(1) + data_uri(m.group(2)) + m.group(1), js)
+    def swap(m):
+        if not (ROOT / m.group(2)).exists():
+            print(f"manquant, laissé tel quel : {m.group(2)}")
+            return m.group(0)
+        return m.group(1) + data_uri(m.group(2)) + m.group(1)
+    return re.sub(r'(["\'])(assets/[^"\']+\.(?:png|jpe?g|webp))\1', swap, js)
 
 
 def inline_script(m):

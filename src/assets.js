@@ -1,11 +1,16 @@
 /* Décalco : fonds et stickers, rangés par thème.
  * Les images vivent dans assets/stickers/<theme>/<id>.webp.
  * Le thème "commun" s'ajoute à tous les autres.
- * Pour l'instant seul le thème "savane" a un fond, donc le jeu ne montre que lui.
+ * Seuls les thèmes listés dans THEMES (ceux qui ont un fond) sont jouables.
+ * the : nom avec article ("la savane"), bravo : la phrase de fin de page.
+ * confetti : ce qui pleut quand la page est terminée.
  */
 window.THEMES = {
-  savane: { name: "Savane", scene: { src: "assets/scene.webp", width: 1600, height: 1000 } }
-  // ocean, banquise, foret… : à ajouter avec leur fond
+  savane: { name: "Savane", the: "la savane", bravo: "Quelle belle savane !", confetti: ["🦁", "🦒", "🐘", "🦓"],
+            scene: { src: "assets/scene.webp", width: 1600, height: 1000 } },
+  foret: { name: "Forêt", the: "la forêt", bravo: "Quelle belle forêt !", confetti: ["🦔", "🦉", "🍄", "🍂"],
+           scene: { src: "assets/scene-foret.webp", width: 1600, height: 1000 } }
+  // jungle, ocean, banquise… : à ajouter avec leur fond
 };
 
 window.STICKERS = [
@@ -86,8 +91,13 @@ window.STICKERS = [
   { id: "eagle", theme: "montagne", name: "Aigle", src: "assets/stickers/montagne/eagle.webp", w: 256, h: 207, scale: 0.7 }
 ];
 
+/* Thème joué : ?theme=foret dans l'adresse, sinon le dernier choisi, sinon la savane. */
 (function () {
-  var theme = "savane";
+  var theme = null;
+  try { theme = new URLSearchParams(window.location.search).get("theme"); } catch (e) {}
+  if (!window.THEMES[theme]) { try { theme = window.localStorage.getItem("decalco-theme"); } catch (e) {} }
+  if (!window.THEMES[theme]) theme = "savane";
+  window.THEME = theme;
   window.SCENE = window.THEMES[theme].scene;
   window.ANIMALS = window.STICKERS.filter(function (s) { return s.theme === theme || s.theme === "commun"; });
 })();
