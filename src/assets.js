@@ -60,7 +60,7 @@ window.STICKERS = [
   { id: "sun", theme: "commun", name: "Soleil", src: "assets/stickers/commun/sun.webp", w: 249, h: 256, scale: 1.0 },
   { id: "cloud", theme: "commun", name: "Nuage", src: "assets/stickers/commun/cloud.webp", w: 256, h: 188, scale: 1.2 },
 
-  // Forêt européenne (en réserve)
+  // Forêt européenne
   { id: "bird", theme: "foret", name: "Oiseau", src: "assets/stickers/foret/bird.webp", w: 256, h: 251, scale: 0.5 },
   { id: "owl", theme: "foret", name: "Hibou", src: "assets/stickers/foret/owl.webp", w: 167, h: 256, scale: 0.6 },
   { id: "hedgehog", theme: "foret", name: "Hérisson", src: "assets/stickers/foret/hedgehog.webp", w: 250, h: 256, scale: 0.45 },
@@ -74,6 +74,14 @@ window.STICKERS = [
   { id: "sprout", theme: "foret", name: "Pousse", src: "assets/stickers/foret/sprout.webp", w: 222, h: 256, scale: 0.4 },
   { id: "stump", theme: "foret", name: "Souche", src: "assets/stickers/foret/stump.webp", w: 256, h: 171, scale: 0.6 },
   { id: "nest", theme: "foret", name: "Nid", src: "assets/stickers/foret/nest.webp", w: 256, h: 248, scale: 0.5 },
+  { id: "deer", theme: "foret", name: "Cerf", src: "assets/stickers/foret/deer.webp", w: 163, h: 256, scale: 1.3 },
+  { id: "fox", theme: "foret", name: "Renard", src: "assets/stickers/foret/fox.webp", w: 192, h: 256, scale: 0.8 },
+  { id: "boar", theme: "foret", name: "Sanglier", src: "assets/stickers/foret/boar.webp", w: 222, h: 256, scale: 0.9 },
+  { id: "squirrel", theme: "foret", name: "Écureuil", src: "assets/stickers/foret/squirrel.webp", w: 218, h: 256, scale: 0.45 },
+  { id: "badger", theme: "foret", name: "Blaireau", src: "assets/stickers/foret/badger.webp", w: 253, h: 256, scale: 0.7 },
+  { id: "frog", theme: "foret", name: "Grenouille", src: "assets/stickers/foret/frog.webp", w: 252, h: 256, scale: 0.4 },
+  { id: "mushroom", theme: "foret", name: "Champignon", src: "assets/stickers/foret/mushroom.webp", w: 243, h: 256, scale: 0.45 },
+  { id: "fir", theme: "foret", name: "Sapin", src: "assets/stickers/foret/fir.webp", w: 221, h: 256, scale: 1.6 },
 
   // Jungle (en réserve)
   { id: "gorilla", theme: "jungle", name: "Gorille", src: "assets/stickers/jungle/gorilla.webp", w: 215, h: 256, scale: 1.1 },

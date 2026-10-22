@@ -76,4 +76,4 @@ Joindre un sticker existant (par exemple `assets/stickers/savane/lion.webp`) com
 ### À générer pour la forêt
 
 - Fait : fond (clairière d'automne)
-- Planche 1 (4 × 2) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
+- Fait (planche 1) : cerf, renard, sanglier, écureuil, blaireau, grenouille, champignon, sapin
