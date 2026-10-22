@@ -442,7 +442,7 @@ button{font:inherit;color:inherit}
           <div class="rubber" id="rubber" aria-hidden="true"></div>
           <div class="viewbar h" id="vbarH" aria-hidden="true"><i></i></div>
           <div class="viewbar v" id="vbarV" aria-hidden="true"><i></i></div>
-          <div class="zoombar" id="zoombar" role="group" aria-label="Zoom de la page">
+          <div class="zoombar" id="zoombar" role="group" aria-label="Zoom et image de la page">
             <button class="zbtn" id="btnZoomIn" type="button" aria-label="Zoomer" title="Zoomer">+</button>
             <button class="zbtn" id="btnZoomOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
             <button class="zbtn" id="btnZoomFit" type="button" aria-label="Vue par défaut" title="Vue par défaut"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
@@ -1669,7 +1669,12 @@ button{font:inherit;color:inherit}
       x.fillStyle = "#fffaf0"; x.fillText(label, tx, ty);
       return c;
     }
-    function willShare() { return window.matchMedia("(pointer: coarse)").matches && !!(navigator.share && navigator.canShare); }
+    var touchDevice = window.matchMedia("(pointer: coarse)").matches;   // phone or tablet
+    // share sheet only where the browser can really share an image file (not Firefox Android, for one)
+    function willShare() {
+      if (!touchDevice || !navigator.share || !navigator.canShare) return false;
+      try { return navigator.canShare({ files: [new File([""], "test.png", { type: "image/png" })] }); } catch (e) { return false; }
+    }
     function snapFail() { setHint("Oups, l'image n'a pas pu être enregistrée ici.", true); }
     // Everything runs straight from the tap: iOS only opens the share sheet inside the gesture.
     function snap() {
@@ -1700,6 +1705,7 @@ button{font:inherit;color:inherit}
       if (!placements.length) { setHint("Pose d'abord une décalco sur la page !", true); return; }
       $("snapText").textContent = "On va faire une image de ta page. " + (willShare()
         ? "Tu pourras l'envoyer ou la ranger dans tes photos."
+        : touchDevice ? "Elle sera téléchargée sur cet appareil."
         : "Elle sera téléchargée sur l'ordinateur.");
       openModal($("confirmSnap"), "btnSnapNo");
     }
