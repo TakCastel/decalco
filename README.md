@@ -42,7 +42,7 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
 
 ### Les stickers
 
-1. Générer une planche dans ChatGPT avec le prompt ci-dessous (le style y est décrit, pas besoin d'image jointe).
+1. Générer une planche dans ChatGPT avec le prompt ci-dessous, en joignant une image de référence : quelques stickers existants (lion, renard, jaguar…) assemblés sur fond transparent, et pour le décor quelques éléments de décor existants (cabane, baobab…). Sans référence, le style ne colle pas.
 2. Si ChatGPT a dessiné un faux damier gris au lieu d'un fond transparent : `python3 tools/damier.py planche.png planche-ok.png`.
 3. La découper :
    ```
@@ -51,9 +51,9 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
    Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case). Les stickers arrivent dans `assets/stickers/<theme>/`.
 4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
 
+> Base-toi exactement sur le style de l'image jointe : même dessin, mêmes couleurs, même rendu de la fourrure, même ombrage, même finesse de trait, même contour blanc, mêmes proportions. Vue de trois quarts, corps entier.
 > Planche de stickers pour enfants sur fond transparent : vrai canal alpha, sans damier, sans ombre, sans halo ni voile autour des stickers.
 > Grille stricte de {X} colonnes × {Y} lignes : cases toutes de la même taille, un seul sujet centré dans chaque case, avec au moins 10 % de vide autour ; aucun sujet ne déborde de sa case ni ne touche son voisin.
-> Style : cartoon pour enfants façon dessin animé moderne, mignon et expressif. Grands yeux brillants avec un reflet blanc, sourcils expressifs, proportions un peu bébé (tête assez grosse, pattes trapues). Dessin vectoriel lisse : aplats de couleurs chaudes et saturées avec un léger dégradé et un ombrage doux, sans texture de fourrure ni coups de pinceau. Fin trait brun foncé autour du dessin et des détails, puis contour blanc épais et régulier autour de chaque sticker, comme un autocollant découpé. Vue de trois quarts, corps entier.
 > Sujets, dans l'ordre (de gauche à droite, ligne par ligne), avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
 
 Les planches et images d'origine ne sont pas gardées dans le dépôt.
