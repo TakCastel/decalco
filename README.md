@@ -32,17 +32,17 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
 
 ### Le fond
 
-1. Le générer dans ChatGPT avec le prompt ci-dessous (le style y est décrit, pas besoin d'image jointe).
+1. Le générer dans ChatGPT avec le prompt ci-dessous, en joignant `assets/scene.jpg` comme référence.
 2. Le préparer : `python3 tools/fond.py fond.png foret` (recadre en 16:10, 1600 × 1000, écrit `assets/scene-foret.webp`).
 
-> Style : illustration de dessin animé pour enfants, peinture numérique propre et lumineuse, couleurs chaudes et saturées, lumière de matinée ensoleillée, ciel bleu en dégradé avec quelques nuages blancs moelleux, lointains bleutés et un peu flous, végétation arrondie et détaillée, sans contour noir, sans texte.
+> Base-toi exactement sur le style de l'image jointe.
 > Paysage de {thème}, format paysage 16:10, vide de tout animal et de tout personnage.
 > Cadrage : horizon dans le quart haut de l'image, avec un peu de ciel ; tout le reste est un grand sol dégagé et plat, pour y coller des stickers.
 > Les éléments de décor (arbres, rochers, plantes) restent sur les bords et au loin ; le centre et le bas de l'image sont libres.
 
 ### Les stickers
 
-1. Générer une planche dans ChatGPT avec le prompt ci-dessous, en joignant une image de référence : quelques stickers existants (lion, renard, jaguar…) assemblés sur fond transparent, et pour le décor quelques éléments de décor existants (cabane, baobab…). Sans référence, le style ne colle pas.
+1. Générer une planche dans ChatGPT avec le prompt ci-dessous, en joignant quelques stickers existants comme référence (des animaux pour une planche d'animaux, du décor pour une planche de décor).
 2. Si ChatGPT a dessiné un faux damier gris au lieu d'un fond transparent : `python3 tools/damier.py planche.png planche-ok.png`.
 3. La découper :
    ```
@@ -51,7 +51,7 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
    Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case). Les stickers arrivent dans `assets/stickers/<theme>/`.
 4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
 
-> Base-toi exactement sur le style de l'image jointe : même dessin, mêmes couleurs, même rendu de la fourrure, même ombrage, même finesse de trait, même contour blanc, mêmes proportions. Vue de trois quarts, corps entier.
+> Base-toi exactement sur le style de l'image jointe.
 > Planche de stickers pour enfants sur fond transparent : vrai canal alpha, sans damier, sans ombre, sans halo ni voile autour des stickers.
 > Grille stricte de {X} colonnes × {Y} lignes : cases toutes de la même taille, un seul sujet centré dans chaque case, avec au moins 10 % de vide autour ; aucun sujet ne déborde de sa case ni ne touche son voisin.
 > Sujets, dans l'ordre (de gauche à droite, ligne par ligne), avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
