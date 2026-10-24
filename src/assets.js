@@ -163,6 +163,14 @@ window.STICKERS = [
   { id: "calf", theme: "ferme", name: "Veau", src: "assets/stickers/ferme/calf.webp", w: 215, h: 256, scale: 0.8 },
   { id: "lamb", theme: "ferme", name: "Agneau", src: "assets/stickers/ferme/lamb.webp", w: 213, h: 256, scale: 0.55 },
   { id: "little-pig", theme: "ferme", name: "Porcelet", src: "assets/stickers/ferme/little-pig.webp", w: 210, h: 256, scale: 0.45 },
+  { id: "llama", theme: "ferme", name: "Lama", src: "assets/stickers/ferme/llama.webp", w: 178, h: 256, scale: 1.1 },
+  { id: "bull", theme: "ferme", name: "Taureau", src: "assets/stickers/ferme/bull.webp", w: 251, h: 256, scale: 1.3 },
+  { id: "foal", theme: "ferme", name: "Poulain", src: "assets/stickers/ferme/foal.webp", w: 147, h: 256, scale: 0.9 },
+  { id: "worm", theme: "ferme", name: "Ver de terre", src: "assets/stickers/ferme/worm.webp", w: 256, h: 245, scale: 0.35 },
+  { id: "swallow", theme: "ferme", name: "Hirondelle", src: "assets/stickers/ferme/swallow.webp", w: 256, h: 255, scale: 0.4 },
+  { id: "guinea-pig", theme: "ferme", name: "Cochon d'Inde", src: "assets/stickers/ferme/guinea-pig.webp", w: 256, h: 230, scale: 0.4 },
+  { id: "barn-owl", theme: "ferme", name: "Chouette effraie", src: "assets/stickers/ferme/barn-owl.webp", w: 167, h: 256, scale: 0.55 },
+  { id: "barn", theme: "ferme", name: "Grange", src: "assets/stickers/ferme/barn.webp", w: 256, h: 232, scale: 1.7 },
 
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
