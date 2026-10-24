@@ -163,6 +163,11 @@ window.STICKERS = [
   { id: "calf", theme: "ferme", name: "Veau", src: "assets/stickers/ferme/calf.webp", w: 215, h: 256, scale: 0.8 },
   { id: "lamb", theme: "ferme", name: "Agneau", src: "assets/stickers/ferme/lamb.webp", w: 213, h: 256, scale: 0.55 },
   { id: "little-pig", theme: "ferme", name: "Porcelet", src: "assets/stickers/ferme/little-pig.webp", w: 210, h: 256, scale: 0.45 },
+  { id: "goose", theme: "ferme", name: "Oie", src: "assets/stickers/ferme/goose.webp", w: 196, h: 256, scale: 0.6 },
+  { id: "turkey", theme: "ferme", name: "Dinde", src: "assets/stickers/ferme/turkey.webp", w: 254, h: 256, scale: 0.65 },
+  { id: "bee", theme: "ferme", name: "Abeille", src: "assets/stickers/ferme/bee.webp", w: 256, h: 245, scale: 0.3 },
+  { id: "mole", theme: "ferme", name: "Taupe", src: "assets/stickers/ferme/mole.webp", w: 256, h: 201, scale: 0.45 },
+  { id: "dove", theme: "ferme", name: "Colombe", src: "assets/stickers/ferme/dove.webp", w: 256, h: 227, scale: 0.4 },
   { id: "llama", theme: "ferme", name: "Lama", src: "assets/stickers/ferme/llama.webp", w: 178, h: 256, scale: 1.1 },
   { id: "bull", theme: "ferme", name: "Taureau", src: "assets/stickers/ferme/bull.webp", w: 251, h: 256, scale: 1.3 },
   { id: "foal", theme: "ferme", name: "Poulain", src: "assets/stickers/ferme/foal.webp", w: 147, h: 256, scale: 0.9 },
@@ -171,6 +176,9 @@ window.STICKERS = [
   { id: "guinea-pig", theme: "ferme", name: "Cochon d'Inde", src: "assets/stickers/ferme/guinea-pig.webp", w: 256, h: 230, scale: 0.4 },
   { id: "barn-owl", theme: "ferme", name: "Chouette effraie", src: "assets/stickers/ferme/barn-owl.webp", w: 167, h: 256, scale: 0.55 },
   { id: "barn", theme: "ferme", name: "Grange", src: "assets/stickers/ferme/barn.webp", w: 256, h: 232, scale: 1.7 },
+  { id: "doghouse", theme: "ferme", name: "Niche", src: "assets/stickers/ferme/doghouse.webp", w: 256, h: 228, scale: 0.8 },
+  { id: "henhouse", theme: "ferme", name: "Poulailler", src: "assets/stickers/ferme/henhouse.webp", w: 256, h: 249, scale: 1.0 },
+  { id: "wheelbarrow", theme: "ferme", name: "Brouette", src: "assets/stickers/ferme/wheelbarrow.webp", w: 256, h: 195, scale: 0.7 },
 
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
