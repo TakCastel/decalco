@@ -20,7 +20,8 @@ ALPHA_SOLID = 128  # partie bien opaque : sert à séparer les stickers dont les
 HALO = 8         # en pixels : le halo autour de chaque forme lui est rendu
 MIN_PART = 300   # en pixels : en dessous, c'est une poussière du fond, pas un bout de sticker
 MIN_CORE = 60    # en pixels : plus petit morceau de dessin coloré qui compte
-WHITE = 225      # au-dessus (sur les trois canaux), c'est le blanc du contour
+EDGE = 4         # en pixels : bord extérieur ignoré pour repérer le dessin coloré
+WHITE = 225     # au-dessus (sur les trois canaux), c'est le blanc du contour
 
 
 def main():
@@ -40,7 +41,8 @@ def main():
     sizes = ndimage.sum(solid, lab, range(1, n + 1))
     solid = np.isin(lab, 1 + np.nonzero(sizes >= MIN_PART)[0])   # sans la poussière
     lab, n = ndimage.label(solid)
-    core = solid & (px[..., :3].min(axis=2) < WHITE)
+    # le liseré gris au bord extérieur du contour blanc n'est pas du dessin
+    core = solid & (px[..., :3].min(axis=2) < WHITE) & (ndimage.distance_transform_edt(solid) > EDGE)
     # un sticker tout blanc (nuage…) n'a pas de dessin coloré : il compte en entier
     has_core = ndimage.maximum(core, lab, range(1, n + 1))
     core |= np.isin(lab, 1 + np.nonzero(np.asarray(has_core) == 0)[0])
@@ -68,6 +70,14 @@ def main():
             print(f"!! case {i + 1} ({id_}) vide", file=sys.stderr)
             continue
         mask = cells == i
+        # on ne garde que les morceaux reliés au dessin de cette case :
+        # les bouts de contour blanc du voisin tombés de ce côté partent
+        # (liaison par les pixels bien visibles seulement, pas par le voile presque transparent)
+        visible = mask & (px[..., 3] >= ALPHA_MIN)
+        pieces, _ = ndimage.label(visible)
+        mine = np.unique(pieces[(clab > 0) & (cell_of[clab] == i) & visible])
+        kept = np.isin(pieces, mine[mine > 0])
+        mask &= ndimage.binary_dilation(kept, iterations=HALO)
         part = px.copy()
         part[~mask] = 0  # efface ce qui appartient aux voisins
         ys, xs = np.nonzero(mask & (px[..., 3] >= ALPHA_MIN))
