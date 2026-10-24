@@ -176,9 +176,17 @@ window.STICKERS = [
   { id: "guinea-pig", theme: "ferme", name: "Cochon d'Inde", src: "assets/stickers/ferme/guinea-pig.webp", w: 256, h: 230, scale: 0.4 },
   { id: "barn-owl", theme: "ferme", name: "Chouette effraie", src: "assets/stickers/ferme/barn-owl.webp", w: 167, h: 256, scale: 0.55 },
   { id: "barn", theme: "ferme", name: "Grange", src: "assets/stickers/ferme/barn.webp", w: 256, h: 232, scale: 1.7 },
-  { id: "doghouse", theme: "ferme", name: "Niche", src: "assets/stickers/ferme/doghouse.webp", w: 256, h: 228, scale: 0.8 },
+  { id: "tractor", theme: "ferme", name: "Tracteur", src: "assets/stickers/ferme/tractor.webp", w: 256, h: 204, scale: 1.2 },
+  { id: "windmill", theme: "ferme", name: "Moulin", src: "assets/stickers/ferme/windmill.webp", w: 241, h: 256, scale: 1.7 },
+  { id: "apple-tree", theme: "ferme", name: "Pommier", src: "assets/stickers/ferme/apple-tree.webp", w: 256, h: 254, scale: 1.6 },
+  { id: "haystack", theme: "ferme", name: "Botte de foin", src: "assets/stickers/ferme/haystack.webp", w: 256, h: 214, scale: 0.8 },
+  { id: "scarecrow", theme: "ferme", name: "Épouvantail", src: "assets/stickers/ferme/scarecrow.webp", w: 235, h: 256, scale: 1.1 },
+  { id: "fence", theme: "ferme", name: "Barrière", src: "assets/stickers/ferme/fence.webp", w: 256, h: 207, scale: 0.9 },
+  { id: "pumpkin", theme: "ferme", name: "Citrouille", src: "assets/stickers/ferme/pumpkin.webp", w: 256, h: 204, scale: 0.6 },
   { id: "henhouse", theme: "ferme", name: "Poulailler", src: "assets/stickers/ferme/henhouse.webp", w: 256, h: 249, scale: 1.0 },
+  { id: "doghouse", theme: "ferme", name: "Niche", src: "assets/stickers/ferme/doghouse.webp", w: 256, h: 228, scale: 0.8 },
   { id: "wheelbarrow", theme: "ferme", name: "Brouette", src: "assets/stickers/ferme/wheelbarrow.webp", w: 256, h: 195, scale: 0.7 },
+  { id: "beehive", theme: "ferme", name: "Ruche", src: "assets/stickers/ferme/beehive.webp", w: 217, h: 256, scale: 0.6 },
 
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
