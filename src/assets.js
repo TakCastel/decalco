@@ -11,7 +11,9 @@ window.THEMES = {
   foret: { name: "Forêt", the: "la forêt", bravo: "Quelle belle forêt !", confetti: ["leaf", "star", "heart", "leaf"],
            scene: { src: "assets/scene-foret.webp", width: 1600, height: 1000 } },
   jungle: { name: "Jungle", the: "la jungle", bravo: "Quelle belle jungle !", confetti: ["flower", "leaf", "star", "heart"],
-            scene: { src: "assets/scene-jungle.webp", width: 1600, height: 1000 } }
+            scene: { src: "assets/scene-jungle.webp", width: 1600, height: 1000 } },
+  ferme: { name: "Ferme", the: "la ferme", bravo: "Quelle belle ferme !", confetti: ["flower", "heart", "star", "sparkle"],
+           scene: { src: "assets/scene-ferme.webp", width: 1600, height: 1000 } }
   // ocean, banquise… : à ajouter avec leur fond
 };
 
