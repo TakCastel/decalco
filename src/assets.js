@@ -163,7 +163,11 @@ window.STICKERS = [
   { id: "dove", theme: "ferme", name: "Colombe", src: "assets/stickers/ferme/dove.webp", w: 256, h: 245, scale: 0.4 },
   { id: "llama", theme: "ferme", name: "Lama", src: "assets/stickers/ferme/llama.webp", w: 132, h: 256, scale: 1.1 },
   { id: "guinea-pig", theme: "ferme", name: "Cochon d'Inde", src: "assets/stickers/ferme/guinea-pig.webp", w: 256, h: 234, scale: 0.4 },
+  { id: "worm", theme: "ferme", name: "Ver de terre", src: "assets/stickers/ferme/worm.webp", w: 246, h: 256, scale: 0.35 },
+  { id: "grasshopper", theme: "ferme", name: "Sauterelle", src: "assets/stickers/ferme/grasshopper.webp", w: 240, h: 256, scale: 0.35 },
+  { id: "goldfish", theme: "ferme", name: "Poisson rouge", src: "assets/stickers/ferme/goldfish.webp", w: 256, h: 249, scale: 0.35 },
   { id: "barn", theme: "ferme", name: "Grange", src: "assets/stickers/ferme/barn.webp", w: 256, h: 232, scale: 1.7 },
+  { id: "farmhouse", theme: "ferme", name: "Maison de ferme", src: "assets/stickers/ferme/farmhouse.webp", w: 256, h: 223, scale: 1.6 },
   { id: "tractor", theme: "ferme", name: "Tracteur", src: "assets/stickers/ferme/tractor.webp", w: 256, h: 212, scale: 1.2 },
   { id: "windmill", theme: "ferme", name: "Moulin", src: "assets/stickers/ferme/windmill.webp", w: 198, h: 256, scale: 1.7 },
   { id: "apple-tree", theme: "ferme", name: "Pommier", src: "assets/stickers/ferme/apple-tree.webp", w: 212, h: 256, scale: 1.6 },
@@ -179,6 +183,9 @@ window.STICKERS = [
   { id: "vegetable-patch", theme: "ferme", name: "Potager", src: "assets/stickers/ferme/vegetable-patch.webp", w: 256, h: 248, scale: 0.8 },
   { id: "well", theme: "ferme", name: "Puits", src: "assets/stickers/ferme/well.webp", w: 221, h: 256, scale: 1.0 },
   { id: "watering-can", theme: "ferme", name: "Arrosoir", src: "assets/stickers/ferme/watering-can.webp", w: 256, h: 227, scale: 0.45 },
+  { id: "sunflowers", theme: "ferme", name: "Tournesols", src: "assets/stickers/ferme/sunflowers.webp", w: 255, h: 256, scale: 0.7 },
+  { id: "egg-basket", theme: "ferme", name: "Panier d'œufs", src: "assets/stickers/ferme/egg-basket.webp", w: 256, h: 255, scale: 0.4 },
+  { id: "cart", theme: "ferme", name: "Charrette", src: "assets/stickers/ferme/cart.webp", w: 256, h: 181, scale: 0.9 },
 
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
