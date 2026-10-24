@@ -146,6 +146,16 @@ window.STICKERS = [
   { id: "water-lily", theme: "jungle", name: "Nénuphar", src: "assets/stickers/jungle/water-lily.webp", w: 256, h: 179, scale: 0.7 },
   { id: "temple", theme: "jungle", name: "Temple", src: "assets/stickers/jungle/temple.webp", w: 222, h: 256, scale: 1.5 },
 
+  // Ferme : animaux du plus connu au moins connu, puis le décor
+  { id: "cow", theme: "ferme", name: "Vache", src: "assets/stickers/ferme/cow.webp", w: 226, h: 256, scale: 1.2 },
+  { id: "pig", theme: "ferme", name: "Cochon", src: "assets/stickers/ferme/pig.webp", w: 216, h: 256, scale: 0.9 },
+  { id: "hen", theme: "ferme", name: "Poule", src: "assets/stickers/ferme/hen.webp", w: 174, h: 256, scale: 0.5 },
+  { id: "sheep", theme: "ferme", name: "Mouton", src: "assets/stickers/ferme/sheep.webp", w: 215, h: 256, scale: 0.9 },
+  { id: "horse", theme: "ferme", name: "Cheval", src: "assets/stickers/ferme/horse.webp", w: 190, h: 256, scale: 1.4 },
+  { id: "duck", theme: "ferme", name: "Canard", src: "assets/stickers/ferme/duck.webp", w: 169, h: 256, scale: 0.5 },
+  { id: "dog", theme: "ferme", name: "Chien", src: "assets/stickers/ferme/dog.webp", w: 202, h: 256, scale: 0.7 },
+  { id: "cat", theme: "ferme", name: "Chat", src: "assets/stickers/ferme/cat.webp", w: 207, h: 256, scale: 0.55 },
+
   // Désert (en réserve)
   { id: "camel", theme: "desert", name: "Dromadaire", src: "assets/stickers/desert/camel.webp", w: 210, h: 256, scale: 1.4 },
   { id: "scorpion", theme: "desert", name: "Scorpion", src: "assets/stickers/desert/scorpion.webp", w: 206, h: 256, scale: 0.4 },
