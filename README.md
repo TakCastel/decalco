@@ -32,17 +32,17 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
 
 ### Le fond
 
-1. Le générer dans ChatGPT avec le prompt ci-dessous, en joignant `assets/scene.jpg` comme référence de style.
+1. Le générer dans ChatGPT avec le prompt ci-dessous (le style y est décrit, pas besoin d'image jointe).
 2. Le préparer : `python3 tools/fond.py fond.png foret` (recadre en 16:10, 1600 × 1000, écrit `assets/scene-foret.webp`).
 
-> Garde exactement le même style que l'image jointe (dessin cartoon pour enfants, couleurs chaudes et lumineuses, même cadrage).
+> Style : illustration de dessin animé pour enfants, peinture numérique propre et lumineuse, couleurs chaudes et saturées, lumière de matinée ensoleillée, ciel bleu en dégradé avec quelques nuages blancs moelleux, lointains bleutés et un peu flous, végétation arrondie et détaillée, sans contour noir, sans texte.
 > Paysage de {thème}, format paysage 16:10, vide de tout animal et de tout personnage.
 > Cadrage : horizon dans le quart haut de l'image, avec un peu de ciel ; tout le reste est un grand sol dégagé et plat, pour y coller des stickers.
 > Les éléments de décor (arbres, rochers, plantes) restent sur les bords et au loin ; le centre et le bas de l'image sont libres.
 
 ### Les stickers
 
-1. Générer une planche dans ChatGPT avec le prompt ci-dessous, en joignant un sticker existant comme référence (par exemple `assets/stickers/savane/lion.webp`).
+1. Générer une planche dans ChatGPT avec le prompt ci-dessous (le style y est décrit, pas besoin d'image jointe).
 2. Si ChatGPT a dessiné un faux damier gris au lieu d'un fond transparent : `python3 tools/damier.py planche.png planche-ok.png`.
 3. La découper :
    ```
@@ -51,10 +51,9 @@ Un paysage est jouable dès qu'il est déclaré dans `window.THEMES` avec son fo
    Les ids se lisent de gauche à droite, ligne par ligne (`-` pour sauter une case). Les stickers arrivent dans `assets/stickers/<theme>/`.
 4. Coller les lignes affichées dans `src/assets.js`, puis corriger le nom français et le `scale` (taille relative : 1 = animal moyen, 1.6 = girafe, 0.4 = insecte).
 
-> Garde exactement le même style que l'image jointe (trait, couleurs, contour blanc).
 > Planche de stickers pour enfants sur fond transparent : vrai canal alpha, sans damier, sans ombre, sans halo ni voile autour des stickers.
 > Grille stricte de {X} colonnes × {Y} lignes : cases toutes de la même taille, un seul sujet centré dans chaque case, avec au moins 10 % de vide autour ; aucun sujet ne déborde de sa case ni ne touche son voisin.
-> Style lisse : dessin cartoon vectoriel arrondi, aplats de couleur nets avec un léger dégradé, sans texture de fourrure ni coups de pinceau ; fin trait sombre autour du dessin, puis contour blanc épais et régulier autour de chaque sticker. Couleurs douces et chaudes, vue de trois quarts, corps entier.
+> Style : cartoon pour enfants façon dessin animé moderne, mignon et expressif. Grands yeux brillants avec un reflet blanc, sourcils expressifs, proportions un peu bébé (tête assez grosse, pattes trapues). Dessin vectoriel lisse : aplats de couleurs chaudes et saturées avec un léger dégradé et un ombrage doux, sans texture de fourrure ni coups de pinceau. Fin trait brun foncé autour du dessin et des détails, puis contour blanc épais et régulier autour de chaque sticker, comme un autocollant découpé. Vue de trois quarts, corps entier.
 > Sujets, dans l'ordre (de gauche à droite, ligne par ligne), avec des expressions variées : {liste, avec une expression pour chacun : grand sourire, sourire bouche fermée, air curieux…}.
 
 Les planches et images d'origine ne sont pas gardées dans le dépôt.
